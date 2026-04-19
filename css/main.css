@@ -1,0 +1,43 @@
+/* Zákaz nechtěného zoomu a double-tap zoomu, podpora pro Safe Area */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: manipulation; /* Zamezení double-tap zoomu na mobilech */
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  background-color: #f3f4f6;
+}
+
+#map {
+  width: 100%;
+  height: 100vh;
+  z-index: 1;
+}
+
+/* UI komponenty musí být nad mapou */
+.ui-overlay {
+  z-index: 1000;
+}
+
+/* Animace vysouvacího panelu */
+.slide-up {
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-up.active {
+  transform: translateY(0);
+}
+
+/* Zajištění správné průhlednosti pro geometrické prvky (kružnice Mapy.cz) */
+.smap-geom-layer path {
+  mix-blend-mode: multiply;
+}

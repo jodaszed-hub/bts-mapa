@@ -1,0 +1,9 @@
+{
+  "name": "btsmapa",
+  "version": "1.0.0",
+  "description": "Mobilní webová aplikace (PWA) s využitím Mapy.cz API pro vizualizaci O2 BTS",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {}
+}

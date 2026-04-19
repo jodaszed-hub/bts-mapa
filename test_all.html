@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>GSMweb.cz - hledání BTS</TITLE>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<STYLE type="text/css">tr{font-size:12px}</STYLE>
+</HEAD>
+<BODY bgcolor="White">
+<table></table><br>
+<HR>
+<center>
+<img src="ikony/n_hledej.gif" alt="BTS Search by Broňajzzz">
+<form action="search.php" method="post" name="f">
+<b>Hledat:</b>
+&nbsp;&nbsp;
+<input type="text" name="udaj" value="" size="30">
+&nbsp;&nbsp;
+<b>v</b>
+<select name="par">
+<option  value=""></option>
+<option  value="cid">Cell ID (dec)</option>
+<option  value="cid2">Cell ID (dec) - začínající na údaj</option>
+<option  value="hex">Cell ID (hex)</option>
+<option SELECTED value="okres">Okres</option>
+<option  value="um1">Umístění - začínající na údaj</option>
+<option  value="um2">Umístění - obsahující údaj</option>
+<option  value="lac">LAC (dec) / TAC / GSM Cell ID</option>
+<option  value="lac2">LAC (hex)</option>
+<option  value="bch">BCH</option>
+<option  value="scr">PhysCID</option>
+<option  value="band">LTE/NR pásmo</option>
+<option  value="last">Poslední aktualizace</option>
+<option  value="zmeny">Změny za posledních X dní</option>
+<option  value="nove">Nové BTS</option>
+</select>
+&nbsp;&nbsp;
+<b>Operátor</b>
+<select name="op">
+<option  value="all">Všechny sítě</option>
+<option  value="t-mobile">T-Mobile</option>
+<option SELECTED value="eurotel">O2</option>
+<option  value="oskar">Vodafone</option>
+<option  value="Tlte">T-Mobile LTE</option>
+<option  value="o2lte">O2 LTE/NR</option>
+<option  value="vflte">Vodafone LTE</option>
+<option  value="nt">Nordic Telecom</option>
+<option  value="fm">VKV rozhlas</option>
+<option  value="digir">Digitální rozhlas</option>
+<option  value="dvbt">Digitální televize</option>
+<option  value="gsmr">GSM-R</option>
+</select>
+<TABLE>
+<TR VALIGN="top">
+<TD>
+<BLOCKQUOTE>
+<INPUT type="radio" name="gps" value="" CHECKED><B>Vše</B>
+<INPUT type="radio" name="gps" value="without"><B>Pouze bez GPS</B>
+<INPUT type="radio" name="gps" value="only"><B>Pouze s GPS</B>
+</BLOCKQUOTE></TD>
+<TD>
+<BLOCKQUOTE>
+<INPUT type="radio" name="foto" value="" CHECKED><B>Vše</B>
+<INPUT type="radio" name="foto" value="without"><B>Pouze bez foto</B>
+<INPUT type="radio" name="foto" value="only"><B>Pouze s foto</B>
+</BLOCKQUOTE>
+</TD>
+</TR>
+</TABLE>
+<b>Řazení</b>
+<select name="razeni">
+<option SELECTED value="original">Originální</option>
+<option  value="cid">Podle CID</option>
+<option  value="lac">Podle LAC</option>
+<option  value="bch">Podle BCH</option>
+<option  value="datum">Podle Datumu</option>
+<option  value="okres">Podle Okresu</option>
+<option  value="umisteni">Podle Umístění</option>
+<option  value="autor">Podle Autora</option>
+</select>
+<input type="hidden" name="smer" value="vzestupne">
+<input type="submit" value="Vyhledat BTS">
+</FORM>
+</CENTER>
+</BODY>
+</HTML>
