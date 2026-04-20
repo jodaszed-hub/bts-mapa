@@ -41,8 +41,7 @@ for okres in okresy:
                     tds = re.findall(r'<td[^>]*>(.*?)</td>', row_html, re.IGNORECASE | re.DOTALL)
                     clean_tds = [re.sub(r'<[^>]+>', '', td).strip().replace('&nbsp;', '') for td in tds]
                     
-                    name_m = re.search(r'<td[^>]*>(.*?)</td>\s*<td[^>]*>\s*<a href="https://www\.mapy\.com/turisticka', row_html, re.IGNORECASE)
-                    name = re.sub(r'<[^>]+>', '', name_m.group(1)).strip() if name_m else ""
+                    name = clean_tds[-4] if len(clean_tds) >= 4 else "Neznámé umístění"
                     
                     cid_dec = ""
                     for td in clean_tds:
@@ -51,17 +50,26 @@ for okres in okresy:
                             break
                             
                     key = (round(lon, 5), round(lat, 5))
+                    
                     if key not in bts_dict:
                         bts_dict[key] = {
                             "lon": lon,
                             "lat": lat,
-                            "cids": [cid_dec] if cid_dec else [],
+                            "cells": {},
                             "name": name
                         }
-                    else:
-                        if cid_dec and cid_dec not in bts_dict[key]["cids"]:
-                            bts_dict[key]["cids"].append(cid_dec)
-                            
+                        
+                    if len(clean_tds) >= 11:
+                        cell_ci = clean_tds[-11]
+                        if cell_ci and cell_ci not in bts_dict[key]["cells"]:
+                            bts_dict[key]["cells"][cell_ci] = {
+                                "ci": cell_ci,
+                                "tac": clean_tds[-9],
+                                "band": clean_tds[-8] if op == 'o2lte' else 'GSM',
+                                "phys": clean_tds[-7] if op == 'o2lte' else f"{clean_tds[-8]}/{clean_tds[-7]}",
+                                "datum": clean_tds[-6],
+                                "autor": clean_tds[-1][:15]
+                            }
                     count += 1
                     
                 print(f"Okres {okres} ({op}): zpracováno {count} buněk")
@@ -75,14 +83,16 @@ print(f"\nCelkem unikátních věží (lokalit): {len(bts_dict)}")
 
 json_data = []
 for i, (key, data) in enumerate(bts_dict.items()):
-    cids_str = ", ".join(data["cids"]) if data["cids"] else "Neznámé"
+    # Převod slovníku buněk na list
+    cells_list = list(data["cells"].values())
     
     # Sestavíme krásný název pro UI
-    final_name = f"{data['name']} (CID: {cids_str})"
+    final_name = f"{data['name']}"
     
     json_data.append({
         "id": f"O2-GSMWEB-{i+1}",
         "name": final_name,
+        "cells": cells_list,
         "coords": [data["lon"], data["lat"]]
     })
 

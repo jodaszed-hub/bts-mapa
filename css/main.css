@@ -41,3 +41,33 @@ body {
 .smap-geom-layer path {
   mix-blend-mode: multiply;
 }
+
+/* Moderní styl pro MapLibre Popups (Vlaječky) */
+.modern-popup .maplibregl-popup-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.modern-popup .maplibregl-popup-tip {
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+
+.modern-popup .maplibregl-popup-close-button {
+  color: #6b7280;
+  font-size: 20px;
+  padding: 4px 8px;
+  right: 2px;
+  top: 2px;
+  transition: color 0.2s;
+  border-radius: 0 12px 0 8px;
+}
+
+.modern-popup .maplibregl-popup-close-button:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
