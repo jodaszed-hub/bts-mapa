@@ -5,11 +5,12 @@ import json
 import time
 
 okresy = [
-    "AB", "BN", "BE", "KD", "KL", "KO", "KH", "ME", "MB", "NB", "PB", "PZ", "PY", "RA", "RK",
-    "CB", "CK", "JH", "PI", "PT", "ST", "TA", "DO", "KT", "PM", "PS", "PJ", "RO", "TC", "CH",
-    "KV", "SO", "DC", "CV", "LN", "MO", "TP", "UL", "CL", "JN", "LI", "SM", "HK", "JC", "NA",
-    "TU", "CR", "PU", "SY", "UO", "HB", "JI", "PE", "TR", "ZR", "BK", "BM", "BO", "BV", "HO",
-    "VY", "ZN", "KM", "UH", "VS", "ZL", "BR", "FM", "KI", "NJ", "OP", "OV", "PR", "SU", "JE"
+    'AB', 'BN', 'BE', 'KL', 'KO', 'KH', 'ME', 'MB', 'NB', 'PH', 'PZ', 'PB', 'RA',
+    'CB', 'CK', 'JH', 'PI', 'PT', 'ST', 'TA', 'DO', 'KT', 'PM', 'PJ', 'PS', 'RO', 'TC',
+    'CH', 'KV', 'SO', 'DC', 'CV', 'LN', 'MO', 'TP', 'UL', 'LT', 'CL', 'JN', 'LI', 'SM',
+    'HK', 'JC', 'NA', 'RK', 'TU', 'CR', 'PU', 'SY', 'UO', 'HB', 'JI', 'PE', 'TR', 'ZR',
+    'BK', 'BM', 'BO', 'BV', 'HO', 'VY', 'ZN', 'JE', 'OC', 'PV', 'PR', 'SU', 'KM', 'UH',
+    'VS', 'ZL', 'BR', 'FM', 'KI', 'NJ', 'OP', 'OV'
 ]
 
 url = "http://www.gsmweb.cz/search.php"
