@@ -148,16 +148,19 @@ function initMap() {
                 cells.sort((a, b) => a.band.localeCompare(b.band));
                 
                 let tableRows = '';
+                // Mapování frekvence → reálné číslo bandu (3GPP standard, O2 CZ)
+                const bandMap = {
+                    'LTE 800': 'B20', 'LTE 900': 'B8', 'LTE 1800': 'B3',
+                    'LTE 2100': 'B1', 'LTE 2600': 'B7',
+                    'NR 700': 'N28', 'NR 1800': 'N3', 'NR 2100': 'N1', 'NR 3500': 'N78',
+                    'GSM': '2G'
+                };
                 cells.forEach(cell => {
-                    // Zkrátit pásmo pro mobil (např. "LTE 1800" → "L18", "NR 3500" → "N35", "GSM" → "2G")
-                    let shortBand = cell.band;
-                    if (shortBand.startsWith('LTE ')) shortBand = 'L' + shortBand.replace('LTE ', '').replace('00', '');
-                    else if (shortBand.startsWith('NR ')) shortBand = 'N' + shortBand.replace('NR ', '').replace('00', '');
-                    else if (shortBand === 'GSM') shortBand = '2G';
+                    const band = bandMap[cell.band] || cell.band;
 
                     tableRows += `
                         <tr style="border-bottom:1px solid #f3f4f6;">
-                            <td style="padding:2px 3px;white-space:nowrap;color:#2563eb;font-weight:700;font-size:10px;">${shortBand}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#2563eb;font-weight:700;font-size:10px;">${band}</td>
                             <td style="padding:2px 3px;white-space:nowrap;font-family:monospace;font-size:9px;">${cell.ci}</td>
                             <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.tac}</td>
                             <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.phys}</td>
