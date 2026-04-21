@@ -269,6 +269,14 @@ let compassAbsoluteHandler = null;
 let compassFallbackHandler = null;
 let smoothedHeading = null;
 let hasAbsoluteData = false;
+let gpsWatchId = null;
+let lastGpsHeading = null;
+let lastGpsTime = 0;
+
+// GPS heading je platný max 3 sekundy (pak přepneme na magnetometr)
+const GPS_HEADING_TIMEOUT = 3000;
+// Minimální rychlost pro GPS heading (m/s) – cca 1 km/h
+const GPS_MIN_SPEED = 0.3;
 
 // Vyhlazovací funkce pro plynulou rotaci (low-pass filtr)
 function smoothAngle(current, target, factor) {
@@ -279,8 +287,22 @@ function smoothAngle(current, target, factor) {
     return (current + diff * factor + 360) % 360;
 }
 
-function applyHeading(heading) {
+function applyHeading(heading, source) {
     if (heading === null || isNaN(heading) || !compassActive || !map) return;
+
+    // GPS heading má VŽDY přednost (je přesnější při pohybu)
+    if (source === 'magnetometer') {
+        const now = Date.now();
+        // Pokud máme čerstvý GPS heading, ignoruj magnetometr
+        if (lastGpsHeading !== null && (now - lastGpsTime) < GPS_HEADING_TIMEOUT) {
+            return;
+        }
+    }
+
+    if (source === 'gps') {
+        lastGpsHeading = heading;
+        lastGpsTime = Date.now();
+    }
 
     smoothedHeading = smoothAngle(smoothedHeading, heading, 0.25);
     map.setBearing(smoothedHeading);
@@ -296,6 +318,8 @@ function stopCompass() {
     compassActive = false;
     hasAbsoluteData = false;
     smoothedHeading = null;
+    lastGpsHeading = null;
+    lastGpsTime = 0;
 
     if (compassAbsoluteHandler) {
         window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler);
@@ -304,6 +328,10 @@ function stopCompass() {
     if (compassFallbackHandler) {
         window.removeEventListener('deviceorientation', compassFallbackHandler);
         compassFallbackHandler = null;
+    }
+    if (gpsWatchId !== null) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        gpsWatchId = null;
     }
 
     const btn = document.getElementById('compass-btn');
@@ -322,51 +350,68 @@ function startCompass() {
     const btn = document.getElementById('compass-btn');
     if (btn) btn.classList.add('active');
 
-    // Handler pro absolutní orientaci (Android Chrome – nejpřesnější)
+    // ===== 1) GPS HEADING (nejpřesnější při pohybu) =====
+    if ('geolocation' in navigator) {
+        gpsWatchId = navigator.geolocation.watchPosition(
+            (position) => {
+                if (!compassActive) return;
+                const heading = position.coords.heading;
+                const speed = position.coords.speed;
+
+                // GPS heading je spolehlivý jen při pohybu
+                if (heading !== null && !isNaN(heading) && speed !== null && speed >= GPS_MIN_SPEED) {
+                    applyHeading(heading, 'gps');
+                }
+            },
+            (err) => {
+                console.log('GPS heading nedostupný:', err.message);
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 1000,
+                timeout: 5000
+            }
+        );
+    }
+
+    // ===== 2) MAGNETOMETR (absolutní orientace – záloha) =====
     compassAbsoluteHandler = (event) => {
         if (!compassActive) return;
         hasAbsoluteData = true;
         if (event.alpha !== null) {
-            applyHeading((360 - event.alpha) % 360);
+            applyHeading((360 - event.alpha) % 360, 'magnetometer');
         }
     };
 
-    // Handler pro běžný deviceorientation (iOS + fallback Android)
+    // ===== 3) FALLBACK (iOS webkit + Android absolute) =====
     compassFallbackHandler = (event) => {
         if (!compassActive) return;
-        // Pokud už máme absolutní data, ignoruj tento fallback
         if (hasAbsoluteData) return;
 
         let heading = null;
 
-        // iOS Safari – webkitCompassHeading je přímo magnetický azimut
         if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
             heading = event.webkitCompassHeading;
         }
-        // Android fallback – pouze když event.absolute === true
         else if (event.absolute === true && event.alpha !== null) {
             heading = (360 - event.alpha) % 360;
         }
-        // Pokud event.absolute je false, data NEJSOU relativní k severu → nepoužívat
-        // (toto je hlavní příčina, proč dva telefony ukazovaly jinak)
 
         if (heading !== null) {
-            applyHeading(heading);
+            applyHeading(heading, 'magnetometer');
         }
     };
 
-    // Naslouchej oběma eventům současně
-    // Absolutní se spustí na podporovaných Androidech, fallback na iOS a starších
     window.addEventListener('deviceorientationabsolute', compassAbsoluteHandler, true);
     window.addEventListener('deviceorientation', compassFallbackHandler, true);
 
-    // Pokud po 2 sekundách nemáme žádná data, upozorníme uživatele
+    // Timeout – pokud po 3s nemáme nic
     setTimeout(() => {
         if (compassActive && smoothedHeading === null) {
-            alert('Váš telefon neposkytl data z kompasu. Zkuste zkalibrovat kompas (udělejte osmičku ve vzduchu).');
+            alert('Telefon neposkytl data z kompasu ani GPS. Zkuste zkalibrovat kompas (osmička ve vzduchu) a povolit GPS.');
             stopCompass();
         }
-    }, 2500);
+    }, 3000);
 }
 
 function setupCompass() {
