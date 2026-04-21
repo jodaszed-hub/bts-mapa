@@ -52,6 +52,41 @@ function initMap() {
     });
     map.addControl(geolocateControl, 'top-left');
 
+    // Hint "Začni zde" u GPS tlačítka
+    map.on('load', () => {
+        setTimeout(() => {
+            const geoBtn = document.querySelector('.maplibregl-ctrl-geolocate');
+            if (!geoBtn) return;
+
+            const hint = document.createElement('div');
+            hint.id = 'gps-hint';
+            hint.innerHTML = '📍 Začni zde';
+            document.body.appendChild(hint);
+
+            // Pozice vedle GPS tlačítka
+            function positionHint() {
+                const rect = geoBtn.getBoundingClientRect();
+                hint.style.top = rect.top + rect.height / 2 + 'px';
+                hint.style.left = rect.right + 10 + 'px';
+            }
+            positionHint();
+
+            // Zmizí po kliknutí na GPS
+            geoBtn.addEventListener('click', () => {
+                hint.classList.add('gps-hint-hide');
+                setTimeout(() => { if (hint.parentNode) hint.remove(); }, 400);
+            }, { once: true });
+
+            // Nebo zmizí samo po 5 sekundách
+            setTimeout(() => {
+                if (hint.parentNode) {
+                    hint.classList.add('gps-hint-hide');
+                    setTimeout(() => { if (hint.parentNode) hint.remove(); }, 400);
+                }
+            }, 5000);
+        }, 800); // malá pauza po načtení mapy
+    });
+
     map.on('load', async () => {
         try {
             // Cache buster zaručí stažení čerstvého souboru místo staré verze z paměti prohlížeče
