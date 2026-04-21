@@ -149,32 +149,38 @@ function initMap() {
                 
                 let tableRows = '';
                 cells.forEach(cell => {
+                    // Zkrátit pásmo pro mobil (např. "LTE 1800" → "L18", "NR 3500" → "N35", "GSM" → "2G")
+                    let shortBand = cell.band;
+                    if (shortBand.startsWith('LTE ')) shortBand = 'L' + shortBand.replace('LTE ', '').replace('00', '');
+                    else if (shortBand.startsWith('NR ')) shortBand = 'N' + shortBand.replace('NR ', '').replace('00', '');
+                    else if (shortBand === 'GSM') shortBand = '2G';
+
                     tableRows += `
-                        <tr class="border-b border-gray-100 last:border-0 hover:bg-gray-50">
-                            <td class="py-1 px-1.5 whitespace-nowrap text-blue-700 font-bold text-[11px]">${cell.band}</td>
-                            <td class="py-1 px-1.5 whitespace-nowrap font-mono text-[10px]">${cell.ci}</td>
-                            <td class="py-1 px-1.5 whitespace-nowrap text-gray-500 text-[10px]">${cell.tac}</td>
-                            <td class="py-1 px-1.5 whitespace-nowrap text-gray-500 text-[10px]">${cell.phys}</td>
-                            <td class="py-1 px-1.5 whitespace-nowrap text-gray-400 text-[9px]">${cell.datum}</td>
+                        <tr style="border-bottom:1px solid #f3f4f6;">
+                            <td style="padding:2px 3px;white-space:nowrap;color:#2563eb;font-weight:700;font-size:10px;">${shortBand}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;font-family:monospace;font-size:9px;">${cell.ci}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.tac}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.phys}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#9ca3af;font-size:8px;">${cell.datum}</td>
                         </tr>
                     `;
                 });
 
-                // Sestavení moderního HTML obsahu vlaječky
+                // Sestavení kompaktního HTML pro mobil
                 const htmlContent = `
-                    <div class="p-0 text-gray-800 w-full max-w-[280px] sm:max-w-[360px]">
-                        <div class="bg-blue-50 px-2.5 py-2 border-b border-blue-100">
-                            <h3 class="font-bold text-[13px] text-blue-800 leading-snug pr-4">${props.name}</h3>
+                    <div style="padding:0;color:#1f2937;max-width:260px;">
+                        <div style="background:#eff6ff;padding:5px 8px;border-bottom:1px solid #dbeafe;">
+                            <div style="font-weight:700;font-size:11px;color:#1e40af;line-height:1.3;padding-right:16px;">${props.name}</div>
                         </div>
-                        <div class="max-h-[220px] overflow-x-auto overflow-y-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-gray-100/80 sticky top-0 text-gray-600 font-semibold shadow-sm text-[10px]">
-                                    <tr>
-                                        <th class="py-1 px-1.5">Pásmo</th>
-                                        <th class="py-1 px-1.5">CI</th>
-                                        <th class="py-1 px-1.5">TAC</th>
-                                        <th class="py-1 px-1.5">Phys</th>
-                                        <th class="py-1 px-1.5">Datum</th>
+                        <div style="max-height:160px;overflow-y:auto;overflow-x:hidden;">
+                            <table style="width:100%;text-align:left;border-collapse:collapse;">
+                                <thead>
+                                    <tr style="background:#f3f4f6;position:sticky;top:0;">
+                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Band</th>
+                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">CI</th>
+                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">TAC</th>
+                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Phys</th>
+                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Datum</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -188,7 +194,7 @@ function initMap() {
                 new maplibregl.Popup({
                     closeButton: true,
                     closeOnClick: true,
-                    maxWidth: '85vw',
+                    maxWidth: '72vw',
                     className: 'modern-popup'
                 })
                 .setLngLat(coords)
