@@ -672,6 +672,165 @@ function setupSectors() {
         }
     });
 }
+// ====== NEJBLIŽŠÍ BTS ======
+const NEAREST_SOURCE = 'nearest-lines-source';
+const NEAREST_LAYER_LINE = 'nearest-lines-layer';
+const NEAREST_LAYER_LABEL = 'nearest-labels-layer';
+let nearestMarkers = [];
+
+// Haversine vzdálenost v metrech
+function haversineDistance(lng1, lat1, lng2, lat2) {
+    const R = 6371000;
+    const toRad = (d) => d * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function clearNearestLines() {
+    if (map.getLayer(NEAREST_LAYER_LABEL)) map.removeLayer(NEAREST_LAYER_LABEL);
+    if (map.getLayer(NEAREST_LAYER_LINE)) map.removeLayer(NEAREST_LAYER_LINE);
+    if (map.getSource(NEAREST_SOURCE)) map.removeSource(NEAREST_SOURCE);
+    nearestMarkers.forEach(m => m.remove());
+    nearestMarkers = [];
+}
+
+function showNearestBts(userLng, userLat) {
+    clearNearestLines();
+
+    if (!btsData || btsData.length === 0) return;
+
+    // Spočítej vzdálenosti ke všem BTS
+    const withDist = btsData.map(bts => ({
+        ...bts,
+        dist: haversineDistance(userLng, userLat, bts.coords[0], bts.coords[1])
+    }));
+
+    // Seřaď a vezmi 3 nejbližší
+    withDist.sort((a, b) => a.dist - b.dist);
+    const nearest = withDist.slice(0, 3);
+
+    const colors = ['#ef4444', '#22c55e', '#f59e0b'];
+    const features = [];
+
+    nearest.forEach((bts, i) => {
+        // Čára od uživatele k BTS
+        features.push({
+            type: 'Feature',
+            properties: { color: colors[i], idx: i },
+            geometry: {
+                type: 'LineString',
+                coordinates: [[userLng, userLat], bts.coords]
+            }
+        });
+
+        // Štítek se vzdáleností uprostřed čáry
+        const midLng = (userLng + bts.coords[0]) / 2;
+        const midLat = (userLat + bts.coords[1]) / 2;
+        const distText = bts.dist < 1000
+            ? Math.round(bts.dist) + ' m'
+            : (bts.dist / 1000).toFixed(1) + ' km';
+
+        // HTML marker jako label
+        const el = document.createElement('div');
+        el.style.cssText = `
+            background: ${colors[i]};
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 8px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            pointer-events: none;
+            line-height: 1.3;
+            text-align: center;
+        `;
+        el.innerHTML = distText;
+
+        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+            .setLngLat([midLng, midLat])
+            .addTo(map);
+        nearestMarkers.push(marker);
+    });
+
+    // Přidej GeoJSON source + vrstvy
+    map.addSource(NEAREST_SOURCE, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: features }
+    });
+
+    map.addLayer({
+        id: NEAREST_LAYER_LINE,
+        type: 'line',
+        source: NEAREST_SOURCE,
+        paint: {
+            'line-color': ['get', 'color'],
+            'line-width': 2.5,
+            'line-dasharray': [4, 3],
+            'line-opacity': 0.85
+        }
+    });
+}
+
+function setupNearest() {
+    const btn = document.getElementById('nearest-btn');
+    if (!btn) return;
+
+    let userPos = null;
+    let gettingPos = false;
+
+    // Získej aktuální GPS pozici
+    function getPosition() {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve([pos.coords.longitude, pos.coords.latitude]),
+                (err) => reject(err),
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 2000 }
+            );
+        });
+    }
+
+    async function showNearest() {
+        if (gettingPos) return;
+        gettingPos = true;
+        btn.classList.add('active');
+
+        try {
+            userPos = await getPosition();
+            showNearestBts(userPos[0], userPos[1]);
+        } catch (e) {
+            console.log('GPS chyba:', e.message);
+        }
+        gettingPos = false;
+    }
+
+    function hideNearest() {
+        btn.classList.remove('active');
+        clearNearestLines();
+    }
+
+    // Dotyková interakce: drž = ukaž, pusť = skryj
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        showNearest();
+    });
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        hideNearest();
+    });
+    btn.addEventListener('touchcancel', () => hideNearest());
+
+    // Myš (desktop): drž = ukaž
+    btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        showNearest();
+    });
+    btn.addEventListener('mouseup', () => hideNearest());
+    btn.addEventListener('mouseleave', () => hideNearest());
+}
 
 // Spuštění mapy
 window.onload = () => {
@@ -679,4 +838,5 @@ window.onload = () => {
     setupMapSwitcher();
     setupCompass();
     setupSectors();
+    setupNearest();
 };
