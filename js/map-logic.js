@@ -781,6 +781,7 @@ function setupNearest() {
 
     let userPos = null;
     let gettingPos = false;
+    let nearestActive = false;
 
     // Získej aktuální GPS pozici
     function getPosition() {
@@ -801,35 +802,28 @@ function setupNearest() {
         try {
             userPos = await getPosition();
             showNearestBts(userPos[0], userPos[1]);
+            nearestActive = true;
         } catch (e) {
             console.log('GPS chyba:', e.message);
+            btn.classList.remove('active');
         }
         gettingPos = false;
     }
 
     function hideNearest() {
+        nearestActive = false;
         btn.classList.remove('active');
         clearNearestLines();
     }
 
-    // Dotyková interakce: drž = ukaž, pusť = skryj
-    btn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        showNearest();
+    // Toggle: klik zapne, klik vypne
+    btn.addEventListener('click', () => {
+        if (nearestActive) {
+            hideNearest();
+        } else {
+            showNearest();
+        }
     });
-    btn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        hideNearest();
-    });
-    btn.addEventListener('touchcancel', () => hideNearest());
-
-    // Myš (desktop): drž = ukaž
-    btn.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        showNearest();
-    });
-    btn.addEventListener('mouseup', () => hideNearest());
-    btn.addEventListener('mouseleave', () => hideNearest());
 }
 
 // Spuštění mapy
