@@ -263,22 +263,33 @@ function switchMapStyle(style) {
     }
 }
 
-// ====== KOMPASOVÁ ROTACE ======
+// ====== KOMPASOVÁ ROTACE (Hybridní systém) ======
+// Priorita zdrojů: 1) GPS heading (pohyb) → 2) AbsoluteOrientationSensor → 3) deviceorientationabsolute → 4) webkitCompassHeading
 let compassActive = false;
-let compassAbsoluteHandler = null;
-let compassFallbackHandler = null;
 let smoothedHeading = null;
-let hasAbsoluteData = false;
-let gpsWatchId = null;
-let lastGpsHeading = null;
-let lastGpsTime = 0;
+let targetHeading = null;
+let headingSource = 'none'; // 'gps' | 'sensor' | 'absolute' | 'webkit' | 'none'
+let rafId = null;
 
-// GPS heading je platný max 3 sekundy (pak přepneme na magnetometr)
+// GPS stav
+let gpsWatchId = null;
+let lastGpsTime = 0;
 const GPS_HEADING_TIMEOUT = 3000;
-// Minimální rychlost pro GPS heading (m/s) – cca 1 km/h
 const GPS_MIN_SPEED = 0.3;
 
-// Vyhlazovací funkce pro plynulou rotaci (low-pass filtr)
+// AbsoluteOrientationSensor
+let orientationSensor = null;
+
+// DeviceOrientation handlery
+let compassAbsoluteHandler = null;
+let compassFallbackHandler = null;
+
+// Detekce nestability (automatická kalibrace)
+let headingHistory = [];
+const JITTER_WINDOW = 15;       // posledních N vzorků
+const JITTER_THRESHOLD = 40;    // max rozptyl ve stupních = nestabilní
+
+// Vyhlazení s ošetřením přechodu 359°→1°
 function smoothAngle(current, target, factor) {
     if (current === null) return target;
     let diff = target - current;
@@ -287,132 +298,219 @@ function smoothAngle(current, target, factor) {
     return (current + diff * factor + 360) % 360;
 }
 
-function applyHeading(heading, source) {
-    if (heading === null || isNaN(heading) || !compassActive || !map) return;
+// Detekce, zda jsou data stabilní
+function isHeadingStable(heading) {
+    headingHistory.push(heading);
+    if (headingHistory.length > JITTER_WINDOW) headingHistory.shift();
+    if (headingHistory.length < 5) return true; // nedostatek dat
 
-    // GPS heading má VŽDY přednost (je přesnější při pohybu)
-    if (source === 'magnetometer') {
-        const now = Date.now();
-        // Pokud máme čerstvý GPS heading, ignoruj magnetometr
-        if (lastGpsHeading !== null && (now - lastGpsTime) < GPS_HEADING_TIMEOUT) {
-            return;
+    // Spočítej rozptyl (range)
+    let min = 360, max = 0;
+    // Ošetření přechodu kolem 0/360
+    const sinSum = headingHistory.reduce((s, h) => s + Math.sin(h * Math.PI / 180), 0);
+    const cosSum = headingHistory.reduce((s, h) => s + Math.cos(h * Math.PI / 180), 0);
+    const mean = ((Math.atan2(sinSum, cosSum) * 180 / Math.PI) + 360) % 360;
+
+    let maxDev = 0;
+    headingHistory.forEach(h => {
+        let diff = Math.abs(h - mean);
+        if (diff > 180) diff = 360 - diff;
+        if (diff > maxDev) maxDev = diff;
+    });
+
+    return maxDev < JITTER_THRESHOLD;
+}
+
+// Přijetí nového headingu z libovolného zdroje
+function setHeading(heading, source) {
+    if (heading === null || isNaN(heading) || !compassActive) return;
+
+    const priority = { gps: 4, sensor: 3, absolute: 2, webkit: 1 };
+
+    // GPS má vždy přednost; jinak přijmi vyšší nebo stejnou prioritu
+    if (source === 'gps') {
+        lastGpsTime = Date.now();
+    } else {
+        // Pokud máme čerstvý GPS, ignoruj ostatní
+        if (Date.now() - lastGpsTime < GPS_HEADING_TIMEOUT) return;
+    }
+
+    // Přijmi jen stejnou nebo vyšší prioritu
+    if ((priority[source] || 0) >= (priority[headingSource] || 0) || headingSource === 'none') {
+        headingSource = source;
+    } else if (source !== headingSource) {
+        return;
+    }
+
+    targetHeading = heading;
+}
+
+// Render loop – oddělený od senzorů (šetří baterii, plynulý pohyb)
+function compassRenderLoop() {
+    if (!compassActive || !map) {
+        rafId = null;
+        return;
+    }
+
+    if (targetHeading !== null) {
+        smoothedHeading = smoothAngle(smoothedHeading, targetHeading, 0.2);
+        map.setBearing(smoothedHeading);
+
+        const icon = document.getElementById('compass-icon');
+        if (icon) {
+            icon.style.transform = `rotate(${-smoothedHeading}deg)`;
         }
     }
 
-    if (source === 'gps') {
-        lastGpsHeading = heading;
-        lastGpsTime = Date.now();
-    }
+    rafId = requestAnimationFrame(compassRenderLoop);
+}
 
-    smoothedHeading = smoothAngle(smoothedHeading, heading, 0.25);
-    map.setBearing(smoothedHeading);
-
-    const icon = document.getElementById('compass-icon');
-    if (icon) {
-        icon.style.transform = `rotate(${-smoothedHeading}deg)`;
-        icon.style.transition = 'transform 0.1s linear';
+// Zobrazení/skrytí upozornění na kalibraci
+function showCalibrationHint(show) {
+    let hint = document.getElementById('calibration-hint');
+    if (show && !hint) {
+        hint = document.createElement('div');
+        hint.id = 'calibration-hint';
+        hint.className = 'ui-overlay';
+        hint.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(30,58,95,0.92);backdrop-filter:blur(8px);color:white;padding:8px 16px;border-radius:10px;font-size:12px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:2000;max-width:80vw;';
+        hint.innerHTML = '🔄 Kompas je nepřesný – zkuste s telefonem udělat osmičku ve vzduchu';
+        document.body.appendChild(hint);
+        // Automaticky skryj po 6 sekundách
+        setTimeout(() => { if (hint.parentNode) hint.parentNode.removeChild(hint); }, 6000);
+    } else if (!show && hint) {
+        hint.parentNode.removeChild(hint);
     }
 }
 
 function stopCompass() {
     compassActive = false;
-    hasAbsoluteData = false;
+    headingSource = 'none';
     smoothedHeading = null;
-    lastGpsHeading = null;
+    targetHeading = null;
     lastGpsTime = 0;
+    headingHistory = [];
 
-    if (compassAbsoluteHandler) {
-        window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler);
-        compassAbsoluteHandler = null;
-    }
-    if (compassFallbackHandler) {
-        window.removeEventListener('deviceorientation', compassFallbackHandler);
-        compassFallbackHandler = null;
-    }
-    if (gpsWatchId !== null) {
-        navigator.geolocation.clearWatch(gpsWatchId);
-        gpsWatchId = null;
-    }
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (gpsWatchId !== null) { navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId = null; }
+    if (orientationSensor) { orientationSensor.stop(); orientationSensor = null; }
+    if (compassAbsoluteHandler) { window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler); compassAbsoluteHandler = null; }
+    if (compassFallbackHandler) { window.removeEventListener('deviceorientation', compassFallbackHandler); compassFallbackHandler = null; }
 
     const btn = document.getElementById('compass-btn');
     if (btn) btn.classList.remove('active');
-
     const icon = document.getElementById('compass-icon');
     if (icon) icon.style.transform = '';
+    showCalibrationHint(false);
 
     if (map) map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
 }
 
 function startCompass() {
     compassActive = true;
-    hasAbsoluteData = false;
+    headingSource = 'none';
+    headingHistory = [];
 
     const btn = document.getElementById('compass-btn');
     if (btn) btn.classList.add('active');
 
-    // ===== 1) GPS HEADING (nejpřesnější při pohybu) =====
+    // Spuštění render loop
+    rafId = requestAnimationFrame(compassRenderLoop);
+
+    // ===== 1) GPS HEADING =====
     if ('geolocation' in navigator) {
         gpsWatchId = navigator.geolocation.watchPosition(
-            (position) => {
+            (pos) => {
                 if (!compassActive) return;
-                const heading = position.coords.heading;
-                const speed = position.coords.speed;
-
-                // GPS heading je spolehlivý jen při pohybu
-                if (heading !== null && !isNaN(heading) && speed !== null && speed >= GPS_MIN_SPEED) {
-                    applyHeading(heading, 'gps');
+                const h = pos.coords.heading;
+                const s = pos.coords.speed;
+                if (h !== null && !isNaN(h) && s !== null && s >= GPS_MIN_SPEED) {
+                    setHeading(h, 'gps');
                 }
             },
-            (err) => {
-                console.log('GPS heading nedostupný:', err.message);
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 1000,
-                timeout: 5000
-            }
+            () => {},
+            { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
         );
     }
 
-    // ===== 2) MAGNETOMETR (absolutní orientace – záloha) =====
+    // ===== 2) AbsoluteOrientationSensor (moderní API – sensor fusion) =====
+    if ('AbsoluteOrientationSensor' in window) {
+        try {
+            orientationSensor = new AbsoluteOrientationSensor({ frequency: 30, referenceFrame: 'device' });
+            orientationSensor.addEventListener('reading', () => {
+                if (!compassActive) return;
+                const q = orientationSensor.quaternion;
+                // Quaternion → heading (azimut)
+                let heading = Math.atan2(
+                    2 * (q[0] * q[1] + q[2] * q[3]),
+                    1 - 2 * (q[1] * q[1] + q[2] * q[2])
+                ) * (180 / Math.PI);
+                heading = (heading + 360) % 360;
+
+                // Kontrola stability
+                if (!isHeadingStable(heading)) {
+                    showCalibrationHint(true);
+                }
+
+                setHeading(heading, 'sensor');
+            });
+            orientationSensor.addEventListener('error', (e) => {
+                console.log('AbsoluteOrientationSensor chyba:', e.error.name);
+                orientationSensor = null;
+            });
+            orientationSensor.start();
+        } catch (e) {
+            orientationSensor = null;
+        }
+    }
+
+    // ===== 3) deviceorientationabsolute (Android Chrome fallback) =====
     compassAbsoluteHandler = (event) => {
-        if (!compassActive) return;
-        hasAbsoluteData = true;
+        if (!compassActive || orientationSensor) return; // sensor má přednost
         if (event.alpha !== null) {
-            applyHeading((360 - event.alpha) % 360, 'magnetometer');
+            const h = (360 - event.alpha) % 360;
+            if (!isHeadingStable(h)) showCalibrationHint(true);
+            setHeading(h, 'absolute');
         }
     };
+    window.addEventListener('deviceorientationabsolute', compassAbsoluteHandler, true);
 
-    // ===== 3) FALLBACK (iOS webkit + Android absolute) =====
+    // ===== 4) deviceorientation fallback (iOS Safari + starší) =====
     compassFallbackHandler = (event) => {
-        if (!compassActive) return;
-        if (hasAbsoluteData) return;
+        if (!compassActive || orientationSensor) return;
+        if (headingSource === 'absolute') return; // absolutní má přednost
 
         let heading = null;
-
         if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
             heading = event.webkitCompassHeading;
-        }
-        else if (event.absolute === true && event.alpha !== null) {
+        } else if (event.absolute === true && event.alpha !== null) {
             heading = (360 - event.alpha) % 360;
         }
 
         if (heading !== null) {
-            applyHeading(heading, 'magnetometer');
+            if (!isHeadingStable(heading)) showCalibrationHint(true);
+            setHeading(heading, 'webkit');
         }
     };
-
-    window.addEventListener('deviceorientationabsolute', compassAbsoluteHandler, true);
     window.addEventListener('deviceorientation', compassFallbackHandler, true);
 
-    // Timeout – pokud po 3s nemáme nic
+    // Timeout – žádná data
     setTimeout(() => {
-        if (compassActive && smoothedHeading === null) {
-            alert('Telefon neposkytl data z kompasu ani GPS. Zkuste zkalibrovat kompas (osmička ve vzduchu) a povolit GPS.');
+        if (compassActive && targetHeading === null) {
+            alert('Telefon neposkytl kompasová data. Zkuste povolit senzory a GPS v nastavení prohlížeče.');
             stopCompass();
         }
-    }, 3000);
+    }, 3500);
 }
+
+// Pozastavení při neaktivním okně (šetří baterii)
+document.addEventListener('visibilitychange', () => {
+    if (!compassActive) return;
+    if (document.hidden) {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    } else {
+        if (!rafId) rafId = requestAnimationFrame(compassRenderLoop);
+    }
+});
 
 function setupCompass() {
     const btn = document.getElementById('compass-btn');
@@ -422,9 +520,7 @@ function setupCompass() {
     if (!isSecure) {
         btn.title = 'Kompas vyžaduje HTTPS';
         btn.style.opacity = '0.4';
-        btn.addEventListener('click', () => {
-            alert('Kompas funguje pouze přes HTTPS.');
-        });
+        btn.addEventListener('click', () => alert('Kompas funguje pouze přes HTTPS.'));
         return;
     }
 
@@ -432,19 +528,13 @@ function setupCompass() {
         if (compassActive) {
             stopCompass();
         } else {
-            // Na iOS je nutné požádat o povolení
+            // iOS povolení
             if (typeof DeviceOrientationEvent !== 'undefined' &&
                 typeof DeviceOrientationEvent.requestPermission === 'function') {
                 try {
-                    const permission = await DeviceOrientationEvent.requestPermission();
-                    if (permission !== 'granted') {
-                        alert('Pro orientaci mapy je třeba povolit přístup ke kompasu v nastavení.');
-                        return;
-                    }
-                } catch (e) {
-                    alert('Nepodařilo se získat přístup ke kompasu.');
-                    return;
-                }
+                    const p = await DeviceOrientationEvent.requestPermission();
+                    if (p !== 'granted') { alert('Povolte přístup ke kompasu v nastavení.'); return; }
+                } catch (e) { alert('Přístup ke kompasu selhal.'); return; }
             }
             startCompass();
         }
