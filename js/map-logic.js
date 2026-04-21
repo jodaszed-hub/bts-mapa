@@ -2,6 +2,7 @@ let btsData = [];
 
 const API_KEY = "QgTpsrlenL20brYpGs0q3EpgJxRp4AuoywAjGVd_6yw";
 let map;
+let geolocateControl = null;
 
 // Vlaječky a markery
 
@@ -39,19 +40,17 @@ function initMap() {
     map.addControl(new maplibregl.NavigationControl(), 'top-left');
 
     // Přidání GPS geolokace (lokalizace zařízení a zoom)
-    map.addControl(
-        new maplibregl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true,
-            showUserHeading: true,
-            fitBoundsOptions: {
-                maxZoom: 15
-            }
-        }),
-        'top-left'
-    );
+    geolocateControl = new maplibregl.GeolocateControl({
+        positionOptions: {
+            enableHighAccuracy: true
+        },
+        trackUserLocation: true,
+        showUserHeading: true,
+        fitBoundsOptions: {
+            maxZoom: 15
+        }
+    });
+    map.addControl(geolocateControl, 'top-left');
 
     map.on('load', async () => {
         try {
@@ -501,6 +500,8 @@ function setupCompass() {
         if (compassActive) {
             stopCompass();
         } else {
+            // Spustit GPS lokalizaci
+            if (geolocateControl) geolocateControl.trigger();
             // iOS povolení
             if (typeof DeviceOrientationEvent !== 'undefined' &&
                 typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -667,7 +668,10 @@ function setupSectors() {
     btn.addEventListener('click', () => {
         sectorMode = !sectorMode;
         btn.classList.toggle('active', sectorMode);
-        if (!sectorMode) {
+        if (sectorMode) {
+            // Spustit GPS lokalizaci
+            if (geolocateControl) geolocateControl.trigger();
+        } else {
             clearSectors();
         }
     });
@@ -821,6 +825,8 @@ function setupNearest() {
         if (nearestActive) {
             hideNearest();
         } else {
+            // Spustit GPS lokalizaci
+            if (geolocateControl) geolocateControl.trigger();
             showNearest();
         }
     });
