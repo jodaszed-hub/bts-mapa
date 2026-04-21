@@ -266,10 +266,33 @@ function switchMapStyle(style) {
 // ====== KOMPASOVÁ ROTACE ======
 let compassActive = false;
 let compassHandler = null;
+let lastHeading = null;
+let smoothedHeading = null;
+
+// Vyhlazovací funkce pro plynulou rotaci (low-pass filtr)
+function smoothAngle(current, target, factor) {
+    if (current === null) return target;
+    // Ošetření přechodu 359° → 1° (aby se mapa netočila kolem dokola)
+    let diff = target - current;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    return (current + diff * factor + 360) % 360;
+}
 
 function setupCompass() {
     const btn = document.getElementById('compass-btn');
     if (!btn) return;
+
+    // Kontrola HTTPS (kompas funguje jen na HTTPS nebo localhost)
+    const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!isSecure) {
+        btn.title = 'Kompas vyžaduje HTTPS';
+        btn.style.opacity = '0.4';
+        btn.addEventListener('click', () => {
+            alert('Kompas funguje pouze přes zabezpečené připojení (HTTPS). Na localhost funguje také.');
+        });
+        return;
+    }
 
     btn.addEventListener('click', async () => {
         if (compassActive) {
@@ -280,8 +303,12 @@ function setupCompass() {
                 window.removeEventListener('deviceorientationabsolute', compassHandler);
                 window.removeEventListener('deviceorientation', compassHandler);
             }
+            smoothedHeading = null;
+            lastHeading = null;
             // Reset rotace mapy
             map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+            const icon = document.getElementById('compass-icon');
+            if (icon) icon.style.transform = '';
         } else {
             // Na iOS je nutné požádat o povolení
             if (typeof DeviceOrientationEvent !== 'undefined' &&
@@ -289,7 +316,7 @@ function setupCompass() {
                 try {
                     const permission = await DeviceOrientationEvent.requestPermission();
                     if (permission !== 'granted') {
-                        alert('Pro orientaci mapy je třeba povolit přístup ke kompasu.');
+                        alert('Pro orientaci mapy je třeba povolit přístup ke kompasu v nastavení.');
                         return;
                     }
                 } catch (e) {
@@ -306,35 +333,36 @@ function setupCompass() {
 
                 let heading = null;
 
-                // webkitCompassHeading pro iOS Safari
-                if (event.webkitCompassHeading !== undefined) {
+                // iOS Safari – webkitCompassHeading je přímo magnetický azimut
+                if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
                     heading = event.webkitCompassHeading;
                 }
-                // absolutní orientace pro Android
-                else if (event.absolute && event.alpha !== null) {
-                    heading = 360 - event.alpha;
-                }
-                // fallback
+                // Android – absolutní orientace (event.absolute === true)
                 else if (event.alpha !== null) {
-                    heading = 360 - event.alpha;
+                    heading = (360 - event.alpha) % 360;
                 }
 
-                if (heading !== null) {
-                    map.setBearing(heading);
-                    // Rotace SVG ikony kompasu
-                    const icon = document.getElementById('compass-icon');
-                    if (icon) {
-                        icon.style.transform = `rotate(${-heading}deg)`;
-                        icon.style.transition = 'transform 0.15s ease-out';
-                    }
+                if (heading === null || isNaN(heading)) return;
+
+                // Vyhlazení – faktor 0.3 = plynulá rotace bez cukání
+                smoothedHeading = smoothAngle(smoothedHeading, heading, 0.3);
+
+                // Nastavení rotace mapy
+                map.setBearing(smoothedHeading);
+
+                // Rotace SVG ikony kompasu (opačným směrem, aby šipka ukazovala na sever)
+                const icon = document.getElementById('compass-icon');
+                if (icon) {
+                    icon.style.transform = `rotate(${-smoothedHeading}deg)`;
+                    icon.style.transition = 'transform 0.1s linear';
                 }
             };
 
-            // Preferuj absolutní orientaci (přesnější)
+            // Preferuj absolutní orientaci (přesnější na Androidu)
             if ('ondeviceorientationabsolute' in window) {
-                window.addEventListener('deviceorientationabsolute', compassHandler);
+                window.addEventListener('deviceorientationabsolute', compassHandler, true);
             } else {
-                window.addEventListener('deviceorientation', compassHandler);
+                window.addEventListener('deviceorientation', compassHandler, true);
             }
         }
     });
