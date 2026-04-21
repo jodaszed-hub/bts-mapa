@@ -194,7 +194,7 @@ function initMap() {
                     </div>
                 `;
 
-                new maplibregl.Popup({
+                const popup = new maplibregl.Popup({
                     closeButton: true,
                     closeOnClick: true,
                     maxWidth: '72vw',
@@ -203,6 +203,12 @@ function initMap() {
                 .setLngLat(coords)
                 .setHTML(htmlContent)
                 .addTo(map);
+
+                // Kresli sektory pokud je režim aktivní
+                if (sectorMode) {
+                    drawSectors(coords, cells);
+                    popup.on('close', () => clearSectors());
+                }
             }
         };
 
@@ -550,9 +556,169 @@ function setupCompass() {
     });
 }
 
+// ====== VIZUALIZACE SEKTORŮ ======
+let sectorMode = false;
+const SECTOR_COLORS = ['#ef4444', '#22c55e', '#3b82f6']; // červená, zelená, modrá
+const SECTOR_LAYER_PREFIX = 'sector-wedge-';
+const SECTOR_SOURCE = 'sector-source';
+
+// Vytvoření výseče (wedge) jako GeoJSON polygon
+function createWedge(centerLng, centerLat, radiusMeters, startDeg, endDeg) {
+    const points = 24;
+    const coords = [[centerLng, centerLat]];
+    const latFactor = 1 / 111320;
+    const lngFactor = 1 / (111320 * Math.cos(centerLat * Math.PI / 180));
+
+    for (let i = 0; i <= points; i++) {
+        const angle = startDeg + (endDeg - startDeg) * (i / points);
+        const rad = angle * Math.PI / 180;
+        const dx = radiusMeters * Math.sin(rad) * lngFactor;
+        const dy = radiusMeters * Math.cos(rad) * latFactor;
+        coords.push([centerLng + dx, centerLat + dy]);
+    }
+    coords.push([centerLng, centerLat]); // uzavřít polygon
+    return [coords];
+}
+
+// Smazání starých sektorů
+function clearSectors() {
+    for (let i = 0; i < 6; i++) {
+        const layerId = SECTOR_LAYER_PREFIX + i;
+        if (map.getLayer(layerId)) map.removeLayer(layerId);
+        if (map.getLayer(layerId + '-line')) map.removeLayer(layerId + '-line');
+    }
+    if (map.getSource(SECTOR_SOURCE)) map.removeSource(SECTOR_SOURCE);
+}
+
+// Výpočet přibližného dosahu podle bandu (v metrech)
+function getRadiusByBand(bandName) {
+    const ranges = {
+        'GSM': 600, 'LTE 800': 500, 'LTE 900': 450,
+        'LTE 1800': 350, 'LTE 2100': 300, 'LTE 2600': 250,
+        'NR 700': 400, 'NR 1800': 300, 'NR 2100': 250, 'NR 3500': 180
+    };
+    return ranges[bandName] || 300;
+}
+
+// Kreslení sektorů pro danou BTS
+function drawSectors(coords, cells) {
+    clearSectors();
+
+    // Extrahuj unikátní sektory z CI (formát "eNodeBID:sectorID" nebo jen číslo)
+    const sectorSet = new Map(); // sectorId → { bands: [], color }
+    cells.forEach(cell => {
+        let sectorId = 0;
+        const ci = String(cell.ci);
+        if (ci.includes(':')) {
+            sectorId = parseInt(ci.split(':').pop()) || 0;
+        }
+        // Omez na 0-2 (3 sektory)
+        sectorId = sectorId % 3;
+
+        if (!sectorSet.has(sectorId)) {
+            sectorSet.set(sectorId, { bands: [] });
+        }
+        sectorSet.get(sectorId).bands.push(cell.band);
+    });
+
+    // Pokud máme jen 1 sektor nebo žádné, nakresli 3 výchozí
+    if (sectorSet.size === 0) {
+        sectorSet.set(0, { bands: ['LTE 1800'] });
+        sectorSet.set(1, { bands: ['LTE 1800'] });
+        sectorSet.set(2, { bands: ['LTE 1800'] });
+    }
+
+    // Adaptivní velikost dle zoomu
+    const zoom = map.getZoom();
+    const zoomScale = Math.pow(2, 15 - zoom); // při zoom 15 = scale 1
+
+    const features = [];
+    const sectorCount = Math.max(sectorSet.size, 1);
+    const wedgeAngle = 360 / Math.max(sectorCount, 3) - 10; // 10° mezera mezi sektory
+
+    let idx = 0;
+    sectorSet.forEach((data, sectorId) => {
+        // Střed sektoru: 0→0°, 1→120°, 2→240° (klasická konfigurace)
+        const centerAngle = sectorId * 120;
+        const halfAngle = wedgeAngle / 2;
+        const startAngle = centerAngle - halfAngle;
+        const endAngle = centerAngle + halfAngle;
+
+        // Nejmenší band = nejkratší dosah (vizuálně nejzajímavější)
+        const mainBand = data.bands[0] || 'LTE 1800';
+        const radius = getRadiusByBand(mainBand) * zoomScale;
+
+        const polygon = createWedge(coords[0], coords[1], radius, startAngle, endAngle);
+
+        features.push({
+            type: 'Feature',
+            properties: {
+                color: SECTOR_COLORS[sectorId % 3],
+                sectorId: sectorId,
+                idx: idx
+            },
+            geometry: {
+                type: 'Polygon',
+                coordinates: polygon
+            }
+        });
+        idx++;
+    });
+
+    // Přidej GeoJSON source
+    map.addSource(SECTOR_SOURCE, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: features }
+    });
+
+    // Přidej vrstvy pod BTS body
+    const beforeLayer = map.getLayer('layer-bts-points-bg') ? 'layer-bts-points-bg' : undefined;
+
+    features.forEach((f, i) => {
+        // Vyplněná výseč
+        map.addLayer({
+            id: SECTOR_LAYER_PREFIX + i,
+            type: 'fill',
+            source: SECTOR_SOURCE,
+            filter: ['==', ['get', 'idx'], i],
+            paint: {
+                'fill-color': f.properties.color,
+                'fill-opacity': 0.2
+            }
+        }, beforeLayer);
+
+        // Obrys výseče
+        map.addLayer({
+            id: SECTOR_LAYER_PREFIX + i + '-line',
+            type: 'line',
+            source: SECTOR_SOURCE,
+            filter: ['==', ['get', 'idx'], i],
+            paint: {
+                'line-color': f.properties.color,
+                'line-width': 2,
+                'line-opacity': 0.6
+            }
+        }, beforeLayer);
+    });
+}
+
+function setupSectors() {
+    const btn = document.getElementById('sector-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        sectorMode = !sectorMode;
+        btn.classList.toggle('active', sectorMode);
+        if (!sectorMode) {
+            clearSectors();
+        }
+    });
+}
+
 // Spuštění mapy
 window.onload = () => {
     initMap();
     setupMapSwitcher();
     setupCompass();
+    setupSectors();
 };

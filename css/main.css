@@ -148,3 +148,33 @@ body {
   fill: #e2e8f0;
   stroke: #e2e8f0;
 }
+
+/* Tlačítko sektorů */
+.sector-btn {
+  position: absolute;
+  top: 104px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  transition: all 0.25s;
+}
+
+.sector-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.sector-btn.active {
+  background: #1e3a5f;
+  color: white;
+  box-shadow: 0 2px 10px rgba(30, 58, 95, 0.5);
+}
