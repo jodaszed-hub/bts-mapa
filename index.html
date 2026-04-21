@@ -16,6 +16,22 @@
     <!-- Mapa kontejner -->
     <div id="map" class="absolute inset-0 w-full h-full"></div>
 
+    <!-- Přepínač mapových vrstev -->
+    <div id="map-switcher" class="ui-overlay">
+        <button class="map-btn active" data-style="basic" title="Základní">🗺️</button>
+        <button class="map-btn" data-style="outdoor" title="Turistická">🥾</button>
+        <button class="map-btn" data-style="aerial" title="Satelit">🛰️</button>
+        <button class="map-btn" data-style="aerial-labels" title="Satelit + popisky">🏷️</button>
+    </div>
+
+    <!-- Tlačítko kompasu (rotace dle reality) -->
+    <button id="compass-btn" class="ui-overlay compass-btn" title="Orientace dle kompasu">
+        <svg id="compass-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12,2 15,14 12,11 9,14" fill="#ef4444" stroke="#ef4444"/>
+            <polygon points="12,22 9,14 12,11 15,14" fill="#94a3b8" stroke="#94a3b8"/>
+        </svg>
+    </button>
+
     <!-- Skripty logiky -->
     <script src="js/storage-logic.js"></script>
     <script>

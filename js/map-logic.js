@@ -95,7 +95,7 @@ function initMap() {
             type: 'circle',
             source: 'bts-points',
             paint: {
-                'circle-radius': 6,
+                'circle-radius': 7,
                 'circle-color': '#ffffff',
                 'circle-opacity': 0.8
             }
@@ -107,15 +107,27 @@ function initMap() {
             type: 'circle',
             source: 'bts-points',
             paint: {
-                'circle-radius': 4,
-                'circle-color': '#dc2626', // červená Tailwind
+                'circle-radius': 5,
+                'circle-color': '#dc2626',
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#991b1b'
             }
         });
 
-        // Kliknutí na bod ve WebGL vrstvě
-        map.on('click', 'layer-bts-points', (e) => {
+        // Neviditelná dotyková vrstva (větší oblast pro prsty na mobilu)
+        map.addLayer({
+            id: 'layer-bts-touch',
+            type: 'circle',
+            source: 'bts-points',
+            paint: {
+                'circle-radius': 18,
+                'circle-color': 'transparent',
+                'circle-opacity': 0
+            }
+        });
+
+        // Kliknutí na bod (viditelná i dotyková vrstva)
+        const handleBtsClick = (e) => {
             if (e.features.length > 0) {
                 const feature = e.features[0];
                 const coords = feature.geometry.coordinates.slice();
@@ -183,18 +195,154 @@ function initMap() {
                 .setHTML(htmlContent)
                 .addTo(map);
             }
-        });
+        };
+
+        map.on('click', 'layer-bts-touch', handleBtsClick);
+        map.on('click', 'layer-bts-points', handleBtsClick);
 
         // Změna kurzoru při najetí na bod
-        map.on('mouseenter', 'layer-bts-points', () => {
+        map.on('mouseenter', 'layer-bts-touch', () => {
             map.getCanvas().style.cursor = 'pointer';
         });
-        map.on('mouseleave', 'layer-bts-points', () => {
+        map.on('mouseleave', 'layer-bts-touch', () => {
             map.getCanvas().style.cursor = '';
         });
 
     });
 }
 
+// ====== PŘEPÍNAČ MAPOVÝCH PODKLADŮ ======
+function setupMapSwitcher() {
+    const buttons = document.querySelectorAll('.map-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const style = btn.dataset.style;
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            switchMapStyle(style);
+        });
+    });
+}
+
+function switchMapStyle(style) {
+    if (!map) return;
+
+    // Odstraň staré zdroje a vrstvy pro podklad
+    if (map.getLayer('mapy-basic-layer')) map.removeLayer('mapy-basic-layer');
+    if (map.getLayer('mapy-labels-layer')) map.removeLayer('mapy-labels-layer');
+    if (map.getSource('mapy-basic')) map.removeSource('mapy-basic');
+    if (map.getSource('mapy-labels')) map.removeSource('mapy-labels');
+
+    if (style === 'aerial-labels') {
+        // Satelit + popisky = dvě vrstvy
+        map.addSource('mapy-basic', {
+            type: 'raster',
+            tiles: [`https://api.mapy.com/v1/maptiles/aerial/256/{z}/{x}/{y}?apikey=${API_KEY}`],
+            tileSize: 256,
+            attribution: '&copy; <a href="https://api.mapy.com/copyright" target="_blank">Seznam.cz a.s. a další</a>'
+        });
+        map.addSource('mapy-labels', {
+            type: 'raster',
+            tiles: [`https://api.mapy.com/v1/maptiles/names-overlay/256/{z}/{x}/{y}?apikey=${API_KEY}`],
+            tileSize: 256
+        });
+        // Vloží pod BTS vrstvy
+        const firstBtsLayer = map.getLayer('layer-bts-points-bg') ? 'layer-bts-points-bg' : undefined;
+        map.addLayer({ id: 'mapy-basic-layer', type: 'raster', source: 'mapy-basic', minzoom: 0, maxzoom: 19 }, firstBtsLayer);
+        map.addLayer({ id: 'mapy-labels-layer', type: 'raster', source: 'mapy-labels', minzoom: 0, maxzoom: 19 }, firstBtsLayer);
+    } else {
+        // Jeden podklad (basic, outdoor, aerial)
+        map.addSource('mapy-basic', {
+            type: 'raster',
+            tiles: [`https://api.mapy.com/v1/maptiles/${style}/256/{z}/{x}/{y}?apikey=${API_KEY}`],
+            tileSize: 256,
+            attribution: '&copy; <a href="https://api.mapy.com/copyright" target="_blank">Seznam.cz a.s. a další</a>'
+        });
+        const firstBtsLayer = map.getLayer('layer-bts-points-bg') ? 'layer-bts-points-bg' : undefined;
+        map.addLayer({ id: 'mapy-basic-layer', type: 'raster', source: 'mapy-basic', minzoom: 0, maxzoom: 19 }, firstBtsLayer);
+    }
+}
+
+// ====== KOMPASOVÁ ROTACE ======
+let compassActive = false;
+let compassHandler = null;
+
+function setupCompass() {
+    const btn = document.getElementById('compass-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+        if (compassActive) {
+            // Vypnout kompas
+            compassActive = false;
+            btn.classList.remove('active');
+            if (compassHandler) {
+                window.removeEventListener('deviceorientationabsolute', compassHandler);
+                window.removeEventListener('deviceorientation', compassHandler);
+            }
+            // Reset rotace mapy
+            map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+        } else {
+            // Na iOS je nutné požádat o povolení
+            if (typeof DeviceOrientationEvent !== 'undefined' &&
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                try {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission !== 'granted') {
+                        alert('Pro orientaci mapy je třeba povolit přístup ke kompasu.');
+                        return;
+                    }
+                } catch (e) {
+                    alert('Nepodařilo se získat přístup ke kompasu.');
+                    return;
+                }
+            }
+
+            compassActive = true;
+            btn.classList.add('active');
+
+            compassHandler = (event) => {
+                if (!compassActive || !map) return;
+
+                let heading = null;
+
+                // webkitCompassHeading pro iOS Safari
+                if (event.webkitCompassHeading !== undefined) {
+                    heading = event.webkitCompassHeading;
+                }
+                // absolutní orientace pro Android
+                else if (event.absolute && event.alpha !== null) {
+                    heading = 360 - event.alpha;
+                }
+                // fallback
+                else if (event.alpha !== null) {
+                    heading = 360 - event.alpha;
+                }
+
+                if (heading !== null) {
+                    map.setBearing(heading);
+                    // Rotace SVG ikony kompasu
+                    const icon = document.getElementById('compass-icon');
+                    if (icon) {
+                        icon.style.transform = `rotate(${-heading}deg)`;
+                        icon.style.transition = 'transform 0.15s ease-out';
+                    }
+                }
+            };
+
+            // Preferuj absolutní orientaci (přesnější)
+            if ('ondeviceorientationabsolute' in window) {
+                window.addEventListener('deviceorientationabsolute', compassHandler);
+            } else {
+                window.addEventListener('deviceorientation', compassHandler);
+            }
+        }
+    });
+}
+
 // Spuštění mapy
-window.onload = initMap;
+window.onload = () => {
+    initMap();
+    setupMapSwitcher();
+    setupCompass();
+};

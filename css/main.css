@@ -71,3 +71,80 @@ body {
   background-color: #f3f4f6;
   color: #111827;
 }
+
+/* Přepínač mapových podkladů */
+#map-switcher {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.map-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.map-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.map-btn.active {
+  background: #3b82f6;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+}
+
+/* Tlačítko kompasu */
+.compass-btn {
+  position: absolute;
+  top: 58px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  transition: all 0.25s;
+}
+
+.compass-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.compass-btn.active {
+  background: #1e3a5f;
+  color: white;
+  box-shadow: 0 2px 10px rgba(30, 58, 95, 0.5);
+}
+
+.compass-btn.active svg polygon:first-child {
+  fill: #ef4444;
+  stroke: #ef4444;
+}
+
+.compass-btn.active svg polygon:last-child {
+  fill: #e2e8f0;
+  stroke: #e2e8f0;
+}
