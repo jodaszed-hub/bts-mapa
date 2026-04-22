@@ -3,6 +3,15 @@ let btsData = [];
 const API_KEY = "QgTpsrlenL20brYpGs0q3EpgJxRp4AuoywAjGVd_6yw";
 let map;
 let geolocateControl = null;
+let gpsTrackingActive = false;
+
+// Spustí GPS lokalizaci jen pokud ještě neběží (aby se nevypínala při opakovaném volání)
+function ensureGpsActive() {
+    if (!geolocateControl) return;
+    if (!gpsTrackingActive) {
+        geolocateControl.trigger();
+    }
+}
 
 // Vlaječky a markery
 
@@ -51,6 +60,10 @@ function initMap() {
         }
     });
     map.addControl(geolocateControl, 'top-left');
+
+    // Sledování stavu GPS
+    geolocateControl.on('trackuserlocationstart', () => { gpsTrackingActive = true; });
+    geolocateControl.on('trackuserlocationend', () => { gpsTrackingActive = false; });
 
     // Hint "Začni zde" u GPS tlačítka
     map.on('load', () => {
@@ -536,7 +549,7 @@ function setupCompass() {
             stopCompass();
         } else {
             // Spustit GPS lokalizaci
-            if (geolocateControl) geolocateControl.trigger();
+            ensureGpsActive();
             // iOS povolení
             if (typeof DeviceOrientationEvent !== 'undefined' &&
                 typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -705,7 +718,7 @@ function setupSectors() {
         btn.classList.toggle('active', sectorMode);
         if (sectorMode) {
             // Spustit GPS lokalizaci
-            if (geolocateControl) geolocateControl.trigger();
+            ensureGpsActive();
         } else {
             clearSectors();
         }
@@ -861,7 +874,7 @@ function setupNearest() {
             hideNearest();
         } else {
             // Spustit GPS lokalizaci
-            if (geolocateControl) geolocateControl.trigger();
+            ensureGpsActive();
             showNearest();
         }
     });
