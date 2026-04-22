@@ -326,74 +326,110 @@ function switchMapStyle(style) {
 }
 
 // ====== KOMPASOVÁ ROTACE ======
-// Používá jen deviceorientation + korekci na rotaci obrazovky
+// Vzor dle maplibre-gl-compass: jednoduchý, ověřený přístup
 let compassActive = false;
-let smoothedHeading = null;
-let targetHeading = null;
 let rafId = null;
 
-// DeviceOrientation handlery
+// Handlery
 let compassAbsoluteHandler = null;
 let compassFallbackHandler = null;
-let hasAbsoluteSource = false;
+
+// Kruhový klouzavý průměr (100 vzorků – profesionální vyhlazení)
+const HISTORY_SIZE = 100;
+let headingHistory = [];
+let currentHeading = null;
 
 // Detekce nestability
-let headingHistory = [];
-const JITTER_WINDOW = 15;
-const JITTER_THRESHOLD = 40;
+let lastCalibHintTime = 0;
 
-// Získej úhel rotace obrazovky (0, 90, 180, 270)
-function getScreenAngle() {
-    if (window.screen && window.screen.orientation && window.screen.orientation.angle !== undefined) {
-        return window.screen.orientation.angle;
+// Vypočítej heading z eventu (dle maplibre-gl-compass)
+function calculateCompassHeading(event) {
+    // iOS – webkitCompassHeading je přímo magnetický azimut
+    if (event.webkitCompassHeading != null) {
+        return event.webkitCompassHeading;
     }
-    // Starší fallback (deprecated ale iOS ho ještě používá)
-    return window.orientation || 0;
+    // Android/ostatní – alpha invertovat
+    if (event.alpha == null) return null;
+    let heading = 360 - event.alpha;
+    if (heading < 0) heading += 360;
+    return heading;
 }
 
-// Vyhlazení s ošetřením přechodu 359°→1°
-function smoothAngle(current, target, factor) {
-    if (current === null) return target;
-    let diff = target - current;
-    if (diff > 180) diff -= 360;
-    if (diff < -180) diff += 360;
-    return (current + diff * factor + 360) % 360;
-}
-
-// Detekce, zda jsou data stabilní
-function isHeadingStable(heading) {
-    headingHistory.push(heading);
-    if (headingHistory.length > JITTER_WINDOW) headingHistory.shift();
-    if (headingHistory.length < 5) return true;
+// Kruhový klouzavý průměr (sin/cos – správně přes 0°/360°)
+function calculateMovingAverage() {
+    if (headingHistory.length === 0) return null;
 
     const sinSum = headingHistory.reduce((s, h) => s + Math.sin(h * Math.PI / 180), 0);
     const cosSum = headingHistory.reduce((s, h) => s + Math.cos(h * Math.PI / 180), 0);
+    let avg = Math.atan2(sinSum / headingHistory.length, cosSum / headingHistory.length) * 180 / Math.PI;
+    if (avg < 0) avg += 360;
+    return avg;
+}
+
+// Detekce jitteru (rozptyl > 40° = nekalibrovaný kompas)
+function checkStability() {
+    if (headingHistory.length < 20) return;
+
+    const sinSum = headingHistory.slice(-20).reduce((s, h) => s + Math.sin(h * Math.PI / 180), 0);
+    const cosSum = headingHistory.slice(-20).reduce((s, h) => s + Math.cos(h * Math.PI / 180), 0);
     const mean = ((Math.atan2(sinSum, cosSum) * 180 / Math.PI) + 360) % 360;
 
     let maxDev = 0;
-    headingHistory.forEach(h => {
+    headingHistory.slice(-20).forEach(h => {
         let diff = Math.abs(h - mean);
         if (diff > 180) diff = 360 - diff;
         if (diff > maxDev) maxDev = diff;
     });
 
-    return maxDev < JITTER_THRESHOLD;
+    if (maxDev > 40 && Date.now() - lastCalibHintTime > 15000) {
+        lastCalibHintTime = Date.now();
+        showCalibrationHint(true);
+    }
 }
 
-// Render loop – oddělený od senzorů
+// Společný handler pro oba eventy
+function onDeviceOrientation(event) {
+    if (!compassActive) return;
+
+    // Pokud přijde absoluteorientation, odpoj relativní (a naopak pro iOS)
+    if (event.type === 'deviceorientationabsolute' && event.alpha != null) {
+        if (compassFallbackHandler) {
+            window.removeEventListener('deviceorientation', compassFallbackHandler, true);
+            compassFallbackHandler = null;
+        }
+    } else if (event.type === 'deviceorientation' && event.webkitCompassHeading != null) {
+        if (compassAbsoluteHandler) {
+            window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler, true);
+            compassAbsoluteHandler = null;
+        }
+    }
+
+    const heading = calculateCompassHeading(event);
+    if (heading == null) return;
+
+    headingHistory.push(heading);
+    if (headingHistory.length > HISTORY_SIZE) headingHistory.shift();
+
+    currentHeading = calculateMovingAverage();
+    checkStability();
+}
+
+// Render loop – 60fps, oddělený od senzorů
 function compassRenderLoop() {
     if (!compassActive || !map) {
         rafId = null;
         return;
     }
 
-    if (targetHeading !== null) {
-        smoothedHeading = smoothAngle(smoothedHeading, targetHeading, 0.2);
-        map.setBearing(smoothedHeading);
+    if (currentHeading !== null) {
+        // setBearing přímo – MapLibre bearing = heading pro "heading-up" režim
+        if (!map.isZooming() && Math.abs(currentHeading - map.getBearing()) >= 0.5) {
+            map.setBearing(currentHeading);
+        }
 
         const icon = document.getElementById('compass-icon');
         if (icon) {
-            icon.style.transform = `rotate(${-smoothedHeading}deg)`;
+            icon.style.transform = `rotate(${-currentHeading}deg)`;
         }
     }
 
@@ -418,14 +454,12 @@ function showCalibrationHint(show) {
 
 function stopCompass() {
     compassActive = false;
-    smoothedHeading = null;
-    targetHeading = null;
-    hasAbsoluteSource = false;
+    currentHeading = null;
     headingHistory = [];
 
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    if (compassAbsoluteHandler) { window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler); compassAbsoluteHandler = null; }
-    if (compassFallbackHandler) { window.removeEventListener('deviceorientation', compassFallbackHandler); compassFallbackHandler = null; }
+    if (compassAbsoluteHandler) { window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler, true); compassAbsoluteHandler = null; }
+    if (compassFallbackHandler) { window.removeEventListener('deviceorientation', compassFallbackHandler, true); compassFallbackHandler = null; }
 
     const btn = document.getElementById('compass-btn');
     if (btn) btn.classList.remove('active');
@@ -438,8 +472,9 @@ function stopCompass() {
 
 function startCompass() {
     compassActive = true;
-    hasAbsoluteSource = false;
     headingHistory = [];
+    currentHeading = null;
+    lastCalibHintTime = 0;
 
     const btn = document.getElementById('compass-btn');
     if (btn) btn.classList.add('active');
@@ -447,48 +482,16 @@ function startCompass() {
     // Spuštění render loop
     rafId = requestAnimationFrame(compassRenderLoop);
 
-    // Korekce na rotaci obrazovky
-    const screenAngle = getScreenAngle();
+    // Připojit oba listenery – automaticky se vybere lepší zdroj
+    compassAbsoluteHandler = onDeviceOrientation;
+    compassFallbackHandler = onDeviceOrientation;
 
-    // ===== 1) deviceorientationabsolute (Chrome + Firefox Android) =====
-    compassAbsoluteHandler = (event) => {
-        if (!compassActive) return;
-        hasAbsoluteSource = true;
-        if (event.alpha !== null) {
-            const h = (360 - event.alpha + screenAngle) % 360;
-            if (!isHeadingStable(h)) showCalibrationHint(true);
-            targetHeading = h;
-        }
-    };
     window.addEventListener('deviceorientationabsolute', compassAbsoluteHandler, true);
-
-    // ===== 2) deviceorientation fallback (iOS Safari) =====
-    compassFallbackHandler = (event) => {
-        if (!compassActive) return;
-        // Pokud máme absolutní zdroj, ignoruj tento
-        if (hasAbsoluteSource) return;
-
-        let heading = null;
-
-        // iOS – webkitCompassHeading je přímo magnetický azimut (zvyšuje se ve směru hodinových ručiček)
-        if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-            heading = (event.webkitCompassHeading + screenAngle) % 360;
-        }
-        // Fallback – jen pokud absolute === true
-        else if (event.absolute === true && event.alpha !== null) {
-            heading = (360 - event.alpha + screenAngle) % 360;
-        }
-
-        if (heading !== null) {
-            if (!isHeadingStable(heading)) showCalibrationHint(true);
-            targetHeading = heading;
-        }
-    };
     window.addEventListener('deviceorientation', compassFallbackHandler, true);
 
     // Timeout – žádná data
     setTimeout(() => {
-        if (compassActive && targetHeading === null) {
+        if (compassActive && currentHeading === null) {
             alert('Telefon neposkytl kompasová data. Zkuste povolit senzory v nastavení prohlížeče.');
             stopCompass();
         }
