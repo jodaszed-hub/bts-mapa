@@ -754,9 +754,10 @@ function showNearestBts(userLng, userLat) {
             }
         });
 
-        // Štítek se vzdáleností uprostřed čáry
-        const midLng = (userLng + bts.coords[0]) / 2;
-        const midLat = (userLat + bts.coords[1]) / 2;
+        // Štítek se vzdáleností – blízko pozice uživatele (15% délky čáry)
+        const t = 0.15;
+        const labelLng = userLng + (bts.coords[0] - userLng) * t;
+        const labelLat = userLat + (bts.coords[1] - userLat) * t;
         const distText = bts.dist < 1000
             ? Math.round(bts.dist) + ' m'
             : (bts.dist / 1000).toFixed(1) + ' km';
@@ -779,7 +780,7 @@ function showNearestBts(userLng, userLat) {
         el.innerHTML = distText;
 
         const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-            .setLngLat([midLng, midLat])
+            .setLngLat([labelLng, labelLat])
             .addTo(map);
         nearestMarkers.push(marker);
     });
