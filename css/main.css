@@ -109,50 +109,76 @@ body {
   box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
 }
 
-/* Tlačítko kompasu */
-.compass-btn {
+/* Mini kompas widget */
+.compass-widget {
   position: absolute;
-  top: 58px;
-  right: 14px;
-  width: 40px;
-  height: 40px;
+  top: 6px;
+  right: 195px;
+  width: 56px;
+  height: 56px;
   border: none;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
+  background: rgba(30, 40, 55, 0.88);
+  backdrop-filter: blur(10px);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-  transition: all 0.25s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  transition: all 0.3s;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.compass-btn:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+.compass-widget:hover {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
 }
 
-.compass-btn.active {
-  background: #1e3a5f;
+.compass-widget.active {
+  background: rgba(20, 30, 50, 0.95);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.6), 0 4px 16px rgba(0,0,0,0.3);
+}
+
+/* Otočný ciferník */
+.compass-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.15s ease-out;
+}
+
+/* Fixní ukazatel směru (trojúhelník nahoře) */
+.compass-pointer {
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: #ef4444;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* Azimut ve stupních uprostřed */
+.compass-degree {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
   color: white;
-  box-shadow: 0 2px 10px rgba(30, 58, 95, 0.5);
-}
-
-.compass-btn.active svg polygon:first-child {
-  fill: #ef4444;
-  stroke: #ef4444;
-}
-
-.compass-btn.active svg polygon:last-child {
-  fill: #e2e8f0;
-  stroke: #e2e8f0;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  font-family: 'SF Mono', 'Menlo', monospace;
 }
 
 /* Tlačítko sektorů */
 .sector-btn {
   position: absolute;
-  top: 104px;
+  top: 58px;
   right: 14px;
   width: 40px;
   height: 40px;
@@ -182,7 +208,7 @@ body {
 /* Tlačítko nejbližších BTS */
 .nearest-btn {
   position: absolute;
-  top: 150px;
+  top: 104px;
   right: 14px;
   width: 40px;
   height: 40px;

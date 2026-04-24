@@ -427,9 +427,16 @@ function compassRenderLoop() {
             map.setBearing(currentHeading);
         }
 
-        const icon = document.getElementById('compass-icon');
-        if (icon) {
-            icon.style.transform = `rotate(${-currentHeading}deg)`;
+        // Otáčej ciferník kompasu (ring se otáčí opačně = N ukazuje kde je sever)
+        const ring = document.getElementById('compass-ring');
+        if (ring) {
+            ring.style.transform = `rotate(${-currentHeading}deg)`;
+        }
+
+        // Zobraz azimut ve stupních
+        const degEl = document.getElementById('compass-degree');
+        if (degEl) {
+            degEl.textContent = Math.round(currentHeading) + '°';
         }
     }
 
@@ -463,8 +470,10 @@ function stopCompass() {
 
     const btn = document.getElementById('compass-btn');
     if (btn) btn.classList.remove('active');
-    const icon = document.getElementById('compass-icon');
-    if (icon) icon.style.transform = '';
+    const ring = document.getElementById('compass-ring');
+    if (ring) ring.style.transform = '';
+    const degEl = document.getElementById('compass-degree');
+    if (degEl) degEl.textContent = '---';
     showCalibrationHint(false);
 
     if (map) map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
