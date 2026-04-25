@@ -286,3 +286,85 @@ body {
   from { opacity: 1; transform: translateY(-50%) translateX(0); }
   to   { opacity: 0; transform: translateY(-50%) translateX(10px); }
 }
+
+/* Vyhledávací lišta */
+#search-container {
+  position: absolute;
+  top: 70px;
+  right: 70px; /* Blíže k tlacitkum */
+  width: 250px;
+  z-index: 1100;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#search-input {
+  width: 100%;
+  padding: 10px 35px 10px 15px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  outline: none;
+  transition: all 0.2s;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#search-input:focus {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
+  width: 280px;
+  margin-left: -30px;
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: none;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.search-results-list {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 240px; /* Širší než input pro lepší čitelnost */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  margin-top: 5px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  max-height: 250px;
+  overflow-y: auto;
+  display: none;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.search-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Úprava pro mobilní zařízení */
+@media (max-width: 600px) {
+  #search-container {
+    right: 10px;
+    top: 150px;
+    width: 160px;
+  }
+  #search-input:focus {
+    width: 200px;
+    margin-left: -40px;
+  }
+}

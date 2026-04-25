@@ -16,6 +16,15 @@
     <!-- Mapa kontejner -->
     <div id="map" class="absolute inset-0 w-full h-full"></div>
 
+    <!-- Vyhledávání -->
+    <div id="search-container" class="ui-overlay">
+        <div class="search-input-wrapper">
+            <input type="text" id="search-input" placeholder="Hledat adresu, ID nebo HEX..." autocomplete="off">
+            <div id="search-clear" class="search-clear">✕</div>
+        </div>
+        <div id="search-results" class="search-results-list"></div>
+    </div>
+
     <!-- Přepínač mapových vrstev -->
     <div id="map-switcher" class="ui-overlay">
         <button class="map-btn active" data-style="basic" title="Základní">🗺️</button>

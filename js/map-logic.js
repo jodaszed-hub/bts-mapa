@@ -106,6 +106,7 @@ function initMap() {
             const response = await fetch('bts-data.json?v=' + new Date().getTime());
             btsData = await response.json();
             console.log("Načteno " + btsData.length + " vysílačů z bts-data.json");
+            setupSearch();
         } catch(e) {
             console.error("Nepodařilo se načíst data vysílačů.", e);
         }
@@ -885,3 +886,156 @@ window.onload = () => {
     setupSectors();
     setupNearest();
 };
+
+// ====== UNIVERZÁLNÍ VYHLEDÁVÁNÍ (Adresa, DEC, HEX) ======
+function setupSearch() {
+    const input = document.getElementById('search-input');
+    const results = document.getElementById('search-results');
+    const clearBtn = document.getElementById('search-clear');
+    if (!input || !results) return;
+
+    let searchIndex = [];
+
+    // Příprava vyhledávacího indexu pro bleskové vyhledávání
+    function buildIndex() {
+        console.log("Buduji vyhledávací index...");
+        searchIndex = btsData.map(bts => {
+            const ids = bts.cells.map(c => {
+                const dec = c.full_cid || (c.ci.includes(':') ? null : c.ci);
+                const hex = dec ? parseInt(dec).toString(16).toUpperCase() : '';
+                return { dec, hex };
+            });
+            
+            return {
+                bts: bts,
+                searchText: bts.name.toLowerCase(),
+                ids: ids
+            };
+        });
+    }
+
+    buildIndex();
+
+    input.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        
+        if (query.length < 2) {
+            results.style.display = 'none';
+            clearBtn.style.display = 'none';
+            return;
+        }
+
+        clearBtn.style.display = 'block';
+        const filtered = [];
+        const queryIsHex = /^[0-9a-fA-F]+$/.test(query);
+
+        for (const item of searchIndex) {
+            let matchType = null;
+            let matchValue = '';
+
+            // 1. Hledání v názvu
+            if (item.searchText.includes(query)) {
+                matchType = 'name';
+            } 
+            // 2. Hledání v ID (DEC nebo HEX)
+            else {
+                const idMatch = item.ids.find(id => 
+                    (id.dec && id.dec.toString().includes(query)) || 
+                    (id.hex && id.hex.toLowerCase().includes(query))
+                );
+                if (idMatch) {
+                    matchType = 'id';
+                    matchValue = idMatch.dec;
+                }
+            }
+
+            if (matchType) {
+                filtered.push({ ...item, matchType, matchValue });
+                if (filtered.length >= 10) break; // Limit výsledků
+            }
+        }
+
+        renderResults(filtered, query);
+    });
+
+    function renderResults(items, query) {
+        if (items.length === 0) {
+            results.innerHTML = '<div class="search-item">Nic nenalezeno</div>';
+        } else {
+            results.innerHTML = items.map(item => {
+                const bts = item.bts;
+                const name = bts.name.replace(new RegExp(query, 'gi'), m => `<b>${m}</b>`);
+                const decId = item.matchValue || (bts.cells[0].full_cid || bts.cells[0].ci);
+                const hexId = parseInt(decId).toString(16).toUpperCase();
+                
+                return `
+                    <div class="search-item" data-id="${bts.id}">
+                        <span class="name">${name}</span>
+                        <span class="details">ID: ${decId} | HEX: ${hexId}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        results.style.display = 'block';
+
+        // Kliknutí na výsledek
+        document.querySelectorAll('.search-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const btsId = el.dataset.id;
+                const targetBts = btsData.find(b => b.id === btsId);
+                if (targetBts) {
+                    goToBts(targetBts);
+                    results.style.display = 'none';
+                    input.value = targetBts.name;
+                }
+            });
+        });
+    }
+
+    function goToBts(bts) {
+        map.flyTo({
+            center: bts.coords,
+            zoom: 16,
+            essential: true
+        });
+
+        // Simulace kliknutí pro otevření popupu
+        setTimeout(() => {
+            const point = map.project(bts.coords);
+            const features = map.queryRenderedFeatures(point, { layers: ['layer-bts-points', 'layer-bts-touch'] });
+            
+            // Pokud není feature v dohledu (např. jiná vrstva), vytvoříme popup ručně
+            if (features.length > 0) {
+                map.fire('click', { lngLat: { lng: bts.coords[0], lat: bts.coords[1] }, point: point, features: features });
+            } else {
+                // Fallback: Vyvoláme handleBtsClick přímo s mock eventem
+                // Musíme najít mock feature
+                const mockFeature = {
+                    geometry: { type: 'Point', coordinates: bts.coords },
+                    properties: {
+                        id: bts.id,
+                        name: bts.name,
+                        cells: JSON.stringify(bts.cells)
+                    }
+                };
+                // Tato funkce není globální, ale initMap ji má v sobě. 
+                // Pro jednoduchost: vyvoláme klik na mapu na daných souřadnicích.
+                map.fire('click', { lngLat: { lng: bts.coords[0], lat: bts.coords[1] }, point: point });
+            }
+        }, 600);
+    }
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        results.style.display = 'none';
+        clearBtn.style.display = 'none';
+        input.focus();
+    });
+
+    // Zavření výsledků při kliknutí mimo
+    document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !results.contains(e.target)) {
+            results.style.display = 'none';
+        }
+    });
+}
