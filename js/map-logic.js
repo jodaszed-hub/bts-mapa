@@ -204,33 +204,44 @@ function initMap() {
                 };
                 cells.forEach(cell => {
                     const band = bandMap[cell.band] || cell.band;
+                    // Použijeme full_cid z CSV pokud existuje, jinak původní ci
+                    const displayCi = cell.full_cid || cell.ci;
+                    
+                    // Převod na HEX pro srovnání s modemem
+                    let hexCi = '';
+                    if (displayCi && !displayCi.includes(':')) {
+                        const dec = parseInt(displayCi);
+                        if (!isNaN(dec)) {
+                            hexCi = ` <span style="color:#9ca3af;font-weight:400;font-size:8px;">(${dec.toString(16).toUpperCase()})</span>`;
+                        }
+                    }
 
                     tableRows += `
                         <tr style="border-bottom:1px solid #f3f4f6;">
                             <td style="padding:2px 3px;white-space:nowrap;color:#2563eb;font-weight:700;font-size:10px;">${band}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;font-family:monospace;font-size:9px;">${cell.ci}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.tac}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.phys}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;color:#9ca3af;font-size:8px;">${cell.datum}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;font-family:monospace;font-size:9px;">${displayCi}${hexCi}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.tac || '-'}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.phys || '-'}</td>
+                            <td style="padding:2px 3px;white-space:nowrap;color:#1e40af;font-size:9px;font-weight:600;">${cell.gsmcid || '-'}</td>
                         </tr>
                     `;
                 });
 
                 // Sestavení kompaktního HTML pro mobil
                 const htmlContent = `
-                    <div style="padding:0;color:#1f2937;max-width:260px;">
+                    <div style="padding:0;color:#1f2937;max-width:280px;">
                         <div style="background:#eff6ff;padding:5px 8px;border-bottom:1px solid #dbeafe;">
                             <div style="font-weight:700;font-size:11px;color:#1e40af;line-height:1.3;padding-right:16px;">${props.name}</div>
                         </div>
-                        <div style="max-height:160px;overflow-y:auto;overflow-x:hidden;">
+                        <div style="max-height:180px;overflow-y:auto;overflow-x:hidden;">
                             <table style="width:100%;text-align:left;border-collapse:collapse;">
                                 <thead>
                                     <tr style="background:#f3f4f6;position:sticky;top:0;">
                                         <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Band</th>
-                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">CI</th>
+                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">CI (HEX)</th>
                                         <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">TAC</th>
                                         <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Phys</th>
-                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Datum</th>
+                                        <th style="padding:2px 3px;font-size:9px;color:#1e40af;font-weight:600;">GSMCID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
