@@ -359,12 +359,16 @@ body {
 /* Úprava pro mobilní zařízení */
 @media (max-width: 600px) {
   #search-container {
-    right: 10px;
-    top: 150px;
-    width: 160px;
+    right: 65px; /* Těsně vedle tlačítek */
+    top: 70px;
+    width: 140px; /* Užší na mobilu */
+  }
+  #search-input {
+    padding: 8px 30px 8px 10px;
+    font-size: 12px;
   }
   #search-input:focus {
-    width: 200px;
+    width: 180px;
     margin-left: -40px;
   }
 }
