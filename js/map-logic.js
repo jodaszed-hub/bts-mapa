@@ -46,8 +46,8 @@ function initMap() {
         zoom: 12
     });
 
-    // Přidání ovládacích prvků (navigace a kompas)
-    map.addControl(new maplibregl.NavigationControl(), 'top-left');
+    // Přidání ovládacích prvků (navigace a kompas) - ODEBRÁNO DLE POŽADAVKU
+    // map.addControl(new maplibregl.NavigationControl(), 'top-left');
 
     // Přidání GPS geolokace (lokalizace zařízení a zoom)
     geolocateControl = new maplibregl.GeolocateControl({
