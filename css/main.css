@@ -375,5 +375,5 @@ body {
 
 /* Posunutí výchozích ovládacích prvků mapy (GPS tlačítko) pod přepínač operátorů */
 .maplibregl-ctrl-top-left {
-    margin-top: 45px;
+    top: 50px !important;
 }
