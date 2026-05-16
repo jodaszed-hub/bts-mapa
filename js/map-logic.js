@@ -105,6 +105,11 @@ function initMap() {
         await loadBtsData('o2');
         setupOperatorSwitcher();
 
+        // Neviditelné počítadlo návštěv
+        try {
+            fetch('https://api.counterapi.dev/v1/sydloch-btsmapa/visits/up', { mode: 'no-cors' });
+        } catch (e) {}
+
         // Kliknutí na bod (viditelná i dotyková vrstva)
         const handleBtsClick = (e) => {
             if (e.features.length > 0) {
@@ -942,9 +947,24 @@ function setupSearch() {
 
     buildIndex();
 
-    input.addEventListener('input', (e) => {
+    input.addEventListener('input', async (e) => {
         const query = e.target.value.toLowerCase().trim();
         
+        // Tajný "cheat kód" pro zobrazení počítadla návštěv
+        if (query === 'adminstats') {
+            try {
+                const res = await fetch('https://api.counterapi.dev/v1/sydloch-btsmapa/visits');
+                const data = await res.json();
+                alert(`Celkový počet načtení mapy: ${data.count}`);
+                input.value = '';
+                results.style.display = 'none';
+                clearBtn.style.display = 'none';
+            } catch (err) {
+                alert('Zatím nejsou žádná data nebo došlo k chybě.');
+            }
+            return;
+        }
+
         if (query.length < 2) {
             results.style.display = 'none';
             clearBtn.style.display = 'none';
