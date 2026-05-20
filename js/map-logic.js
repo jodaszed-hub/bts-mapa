@@ -201,26 +201,33 @@ function initMap() {
                     </div>
                 `;
 
-                const popup = new maplibregl.Popup({
-                    closeButton: true,
-                    closeOnClick: true,
-                    maxWidth: '72vw',
-                    className: 'modern-popup'
-                })
-                .setLngLat(coords)
-                .setHTML(htmlContent)
-                .addTo(map);
-
-                // Kresli sektory pokud je režim aktivní
+                // Kresli sektory pokud je režim aktivní, jinak otevři Popup tabulku
                 if (sectorMode) {
                     drawSectors(coords, cells);
-                    popup.on('close', () => clearSectors());
+                } else {
+                    const popup = new maplibregl.Popup({
+                        closeButton: true,
+                        closeOnClick: true,
+                        maxWidth: '72vw',
+                        className: 'modern-popup'
+                    })
+                    .setLngLat(coords)
+                    .setHTML(htmlContent)
+                    .addTo(map);
                 }
             }
         };
 
         map.on('click', 'layer-bts-touch', handleBtsClick);
         map.on('click', 'layer-bts-points', handleBtsClick);
+
+        // Zavření sektorů při kliknutí na pozadí mapy
+        map.on('click', (e) => {
+            const features = map.queryRenderedFeatures(e.point, { layers: ['layer-bts-points', 'layer-bts-touch'] });
+            if (features.length === 0) {
+                clearSectors();
+            }
+        });
 
         // Změna kurzoru při najetí na bod
         map.on('mouseenter', 'layer-bts-touch', () => {
@@ -593,6 +600,7 @@ function setupCompass() {
 
 // ====== VIZUALIZACE SEKTORŮ ======
 let sectorMode = false;
+let sectorMarkers = [];
 const SECTOR_COLORS = ['#ef4444', '#22c55e', '#3b82f6']; // červená, zelená, modrá
 const SECTOR_LAYER_PREFIX = 'sector-wedge-';
 const SECTOR_SOURCE = 'sector-source';
@@ -623,6 +631,12 @@ function clearSectors() {
         if (map.getLayer(layerId + '-line')) map.removeLayer(layerId + '-line');
     }
     if (map.getSource(SECTOR_SOURCE)) map.removeSource(SECTOR_SOURCE);
+
+    // Smazání popisků sektorů
+    if (typeof sectorMarkers !== 'undefined') {
+        sectorMarkers.forEach(m => m.remove());
+        sectorMarkers = [];
+    }
 }
 
 // Výpočet přibližného dosahu podle bandu (v metrech)
@@ -653,7 +667,10 @@ function drawSectors(coords, cells) {
         if (!sectorSet.has(sectorId)) {
             sectorSet.set(sectorId, { bands: [] });
         }
-        sectorSet.get(sectorId).bands.push(cell.band);
+        // Zamezení duplicitám v jednom sektoru
+        if (!sectorSet.get(sectorId).bands.includes(cell.band)) {
+            sectorSet.get(sectorId).bands.push(cell.band);
+        }
     });
 
     // Pokud máme jen 1 sektor nebo žádné, nakresli 3 výchozí
@@ -697,6 +714,39 @@ function drawSectors(coords, cells) {
                 coordinates: polygon
             }
         });
+
+        // Výpočet pozice pro popisek (v 60% vzdálenosti od středu ve směru azimutu)
+        const labelDist = radius * 0.6;
+        const bisectorRad = centerAngle * Math.PI / 180;
+        const latFactor = 1 / 111320;
+        const lngFactor = 1 / (111320 * Math.cos(coords[1] * Math.PI / 180));
+        const labelLng = coords[0] + labelDist * Math.sin(bisectorRad) * lngFactor;
+        const labelLat = coords[1] + labelDist * Math.cos(bisectorRad) * latFactor;
+
+        // Formátování pásem na malá písmena
+        const labelText = data.bands.map(b => b.toLowerCase()).join(', ');
+
+        // Vytvoření HTML markeru
+        const el = document.createElement('div');
+        el.className = 'sector-label';
+        el.style.color = SECTOR_COLORS[sectorId % 3];
+        el.style.background = 'rgba(255, 255, 255, 0.9)';
+        el.style.padding = '2px 6px';
+        el.style.borderRadius = '4px';
+        el.style.fontSize = '10px';
+        el.style.fontWeight = 'bold';
+        el.style.border = `1px solid ${SECTOR_COLORS[sectorId % 3]}`;
+        el.style.whiteSpace = 'nowrap';
+        el.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+        el.style.pointerEvents = 'none'; // Aby marker neblokoval kliknutí na mapu pod ním
+        el.textContent = labelText;
+
+        const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([labelLng, labelLat])
+            .addTo(map);
+
+        sectorMarkers.push(marker);
+
         idx++;
     });
 
