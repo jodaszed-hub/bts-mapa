@@ -5,6 +5,9 @@ const API_KEY = "QgTpsrlenL20brYpGs0q3EpgJxRp4AuoywAjGVd_6yw";
 let map;
 let geolocateControl = null;
 let gpsTrackingActive = false;
+let manualCoordinates = null;
+let userLocationMarker = null;
+
 
 // Spustí GPS lokalizaci jen pokud ještě neběží (aby se nevypínala při opakovaném volání)
 function ensureGpsActive() {
@@ -63,8 +66,18 @@ function initMap() {
     map.addControl(geolocateControl, 'top-left');
 
     // Sledování stavu GPS
-    geolocateControl.on('trackuserlocationstart', () => { gpsTrackingActive = true; });
+    geolocateControl.on('trackuserlocationstart', () => { 
+        gpsTrackingActive = true; 
+        if (manualCoordinates) {
+            manualCoordinates = null;
+            if (userLocationMarker) {
+                userLocationMarker.remove();
+                userLocationMarker = null;
+            }
+        }
+    });
     geolocateControl.on('trackuserlocationend', () => { gpsTrackingActive = false; });
+
 
     // Hint "Začni zde" u GPS tlačítka
     map.on('load', () => {
@@ -575,8 +588,10 @@ function setupCompass() {
         if (compassActive) {
             stopCompass();
         } else {
-            // Spustit GPS lokalizaci
-            ensureGpsActive();
+            // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
+            if (!manualCoordinates) {
+                ensureGpsActive();
+            }
             // iOS povolení
             if (typeof DeviceOrientationEvent !== 'undefined' &&
                 typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -795,8 +810,10 @@ function setupSectors() {
         sectorMode = !sectorMode;
         btn.classList.toggle('active', sectorMode);
         if (sectorMode) {
-            // Spustit GPS lokalizaci
-            ensureGpsActive();
+            // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
+            if (!manualCoordinates) {
+                ensureGpsActive();
+            }
         } else {
             clearSectors();
         }
@@ -916,6 +933,9 @@ function setupNearest() {
 
     // Získej aktuální GPS pozici
     function getPosition() {
+        if (manualCoordinates) {
+            return Promise.resolve(manualCoordinates);
+        }
         return new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(
                 (pos) => resolve([pos.coords.longitude, pos.coords.latitude]),
@@ -952,8 +972,10 @@ function setupNearest() {
         if (nearestActive) {
             hideNearest();
         } else {
-            // Spustit GPS lokalizaci
-            ensureGpsActive();
+            // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
+            if (!manualCoordinates) {
+                ensureGpsActive();
+            }
             showNearest();
         }
     });
@@ -968,8 +990,146 @@ window.onload = () => {
     setupNearest();
 };
 
+// ====== POMOCNÉ FUNKCE PRO MANUÁLNÍ SOUŘADNICE ======
+
+function parseCoordinates(query) {
+    if (!query) return null;
+
+    // Normalizace desetinné čárky na tečku mezi číslicemi
+    let normalized = query.replace(/(\d),(\d)/g, '$1.$2');
+
+    // Extrakce všech čísel (včetně desetinných míst a znamének)
+    const numbers = normalized.match(/[-+]?[0-9]*\.?[0-9]+/g);
+    if (!numbers || numbers.length < 2) return null;
+
+    const parsedNums = numbers.map(Number);
+    let lat = null;
+    let lng = null;
+
+    if (parsedNums.length >= 6) {
+        // DMS: stupně, minuty, vteřiny (2x)
+        let val1 = parsedNums[0] + parsedNums[1] / 60 + parsedNums[2] / 3600;
+        let val2 = parsedNums[3] + parsedNums[4] / 60 + parsedNums[5] / 3600;
+        if (parsedNums[0] < 0) val1 = -Math.abs(val1);
+        if (parsedNums[3] < 0) val2 = -Math.abs(val2);
+        
+        // Detekce pořadí pro ČR/Střední Evropu
+        if (val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) {
+            lat = val1; lng = val2;
+        } else if (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22) {
+            lat = val2; lng = val1;
+        } else {
+            lat = val1; lng = val2;
+        }
+    } else if (parsedNums.length >= 4) {
+        // DDM: stupně, desetinné minuty (2x)
+        let val1 = parsedNums[0] + parsedNums[1] / 60;
+        let val2 = parsedNums[2] + parsedNums[3] / 60;
+        if (parsedNums[0] < 0) val1 = -Math.abs(val1);
+        if (parsedNums[2] < 0) val2 = -Math.abs(val2);
+
+        if (val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) {
+            lat = val1; lng = val2;
+        } else if (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22) {
+            lat = val2; lng = val1;
+        } else {
+            lat = val1; lng = val2;
+        }
+    } else if (parsedNums.length >= 2) {
+        // DD: desetinné stupně (2x)
+        let val1 = parsedNums[0];
+        let val2 = parsedNums[1];
+
+        if (val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) {
+            lat = val1; lng = val2;
+        } else if (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22) {
+            lat = val2; lng = val1;
+        } else {
+            lat = val1; lng = val2;
+        }
+    }
+
+    if (lat === null || lng === null) return null;
+
+    // Určení světových stran podle textu
+    let halfLen = Math.floor(normalized.length / 2);
+    let part1 = normalized.substring(0, halfLen).toLowerCase();
+    let part2 = normalized.substring(halfLen).toLowerCase();
+
+    // Detekce případného přehození (pokud byl val2 určen jako lat)
+    let val1IsLat = true;
+    if (parsedNums.length >= 6) {
+        let val1 = parsedNums[0] + parsedNums[1] / 60 + parsedNums[2] / 3600;
+        let val2 = parsedNums[3] + parsedNums[4] / 60 + parsedNums[5] / 3600;
+        if (!(val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) && (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22)) {
+            val1IsLat = false;
+        }
+    } else if (parsedNums.length >= 4) {
+        let val1 = parsedNums[0] + parsedNums[1] / 60;
+        let val2 = parsedNums[2] + parsedNums[3] / 60;
+        if (!(val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) && (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22)) {
+            val1IsLat = false;
+        }
+    } else {
+        let val1 = parsedNums[0];
+        let val2 = parsedNums[1];
+        if (!(val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) && (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22)) {
+            val1IsLat = false;
+        }
+    }
+
+    let latPart = val1IsLat ? part1 : part2;
+    let lngPart = val1IsLat ? part2 : part1;
+
+    // Jih (J/S pro angličtinu/slovenštinu, čeština má J)
+    if (latPart.includes('j')) {
+        lat = -Math.abs(lat);
+    }
+
+    // Západ (Z/W) -> záporná délka
+    if (lngPart.includes('z') || lngPart.includes('w')) {
+        lng = -Math.abs(lng);
+    }
+
+    // Validace rozsahů
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return null;
+    }
+
+    return { lat, lng };
+}
+
+function setManualCoordinates(lng, lat) {
+    manualCoordinates = [lng, lat];
+
+    if (userLocationMarker) {
+        userLocationMarker.remove();
+    }
+
+    // Vytvoření elementu pro custom GPS bod
+    const el = document.createElement('div');
+    el.className = 'manual-gps-dot';
+
+    userLocationMarker = new maplibregl.Marker({ element: el })
+        .setLngLat(manualCoordinates)
+        .addTo(map);
+
+    // Přesunout mapu a zoomovat
+    map.flyTo({
+        center: manualCoordinates,
+        zoom: 16,
+        essential: true
+    });
+
+    // Pokud je aktivní sledování GPS, vypneme ho, abychom zamezili konfliktům
+    if (gpsTrackingActive && geolocateControl) {
+        geolocateControl.trigger();
+    }
+}
+
 // ====== UNIVERZÁLNÍ VYHLEDÁVÁNÍ (Adresa, DEC, HEX) ======
 function setupSearch() {
+
     const input = document.getElementById('search-input');
     const results = document.getElementById('search-results');
     const clearBtn = document.getElementById('search-clear');
@@ -999,6 +1159,7 @@ function setupSearch() {
 
     input.addEventListener('input', async (e) => {
         const query = e.target.value.toLowerCase().trim();
+        const rawQuery = e.target.value.trim();
         
         // Tajný "cheat kód" pro zobrazení počítadla návštěv
         if (query === 'adminstats') {
@@ -1015,7 +1176,10 @@ function setupSearch() {
             return;
         }
 
-        if (query.length < 2) {
+        // Zkusíme nejprve parsovat jako souřadnice
+        const parsedCoords = parseCoordinates(rawQuery);
+
+        if (query.length < 2 && !parsedCoords) {
             results.style.display = 'none';
             clearBtn.style.display = 'none';
             return;
@@ -1023,42 +1187,57 @@ function setupSearch() {
 
         clearBtn.style.display = 'block';
         const filtered = [];
-        const queryIsHex = /^[0-9a-fA-F]+$/.test(query);
 
-        for (const item of searchIndex) {
-            let matchType = null;
-            let matchValue = '';
+        // Vyhledáváme v indexu pouze pokud má dotaz aspoň 2 znaky
+        if (query.length >= 2) {
+            for (const item of searchIndex) {
+                let matchType = null;
+                let matchValue = '';
 
-            // 1. Hledání v názvu
-            if (item.searchText.includes(query)) {
-                matchType = 'name';
-            } 
-            // 2. Hledání v ID (DEC nebo HEX)
-            else {
-                const idMatch = item.ids.find(id => 
-                    (id.dec && id.dec.toString().includes(query)) || 
-                    (id.hex && id.hex.toLowerCase().includes(query))
-                );
-                if (idMatch) {
-                    matchType = 'id';
-                    matchValue = idMatch.dec;
+                // 1. Hledání v názvu
+                if (item.searchText.includes(query)) {
+                    matchType = 'name';
+                } 
+                // 2. Hledání v ID (DEC nebo HEX)
+                else {
+                    const idMatch = item.ids.find(id => 
+                        (id.dec && id.dec.toString().includes(query)) || 
+                        (id.hex && id.hex.toLowerCase().includes(query))
+                    );
+                    if (idMatch) {
+                        matchType = 'id';
+                        matchValue = idMatch.dec;
+                    }
                 }
-            }
 
-            if (matchType) {
-                filtered.push({ ...item, matchType, matchValue });
-                if (filtered.length >= 10) break; // Limit výsledků
+                if (matchType) {
+                    filtered.push({ ...item, matchType, matchValue });
+                    if (filtered.length >= 10) break; // Limit výsledků
+                }
             }
         }
 
-        renderResults(filtered, query);
+        renderResults(filtered, query, parsedCoords);
     });
 
-    function renderResults(items, query) {
+    function renderResults(items, query, parsedCoords) {
+        let html = '';
+
+        if (parsedCoords) {
+            html += `
+                <div class="search-item coordinate-item" data-lat="${parsedCoords.lat}" data-lng="${parsedCoords.lng}">
+                    <span class="name" style="color:#2563eb;font-weight:bold;display:flex;align-items:center;gap:4px;">📍 Přejít na souřadnice</span>
+                    <span class="details" style="display:block;font-size:11px;color:#4b5563;margin-top:2px;">${parsedCoords.lat.toFixed(5)}, ${parsedCoords.lng.toFixed(5)}</span>
+                </div>
+            `;
+        }
+
         if (items.length === 0) {
-            results.innerHTML = '<div class="search-item">Nic nenalezeno</div>';
+            if (!parsedCoords) {
+                html += '<div class="search-item">Nic nenalezeno</div>';
+            }
         } else {
-            results.innerHTML = items.map(item => {
+            html += items.map(item => {
                 const bts = item.bts;
                 const name = bts.name.replace(new RegExp(query, 'gi'), m => `<b>${m}</b>`);
                 const decId = item.matchValue || (bts.cells[0].full_cid || bts.cells[0].ci);
@@ -1072,21 +1251,31 @@ function setupSearch() {
                 `;
             }).join('');
         }
+        results.innerHTML = html;
         results.style.display = 'block';
 
         // Kliknutí na výsledek
         document.querySelectorAll('.search-item').forEach(el => {
             el.addEventListener('click', () => {
-                const btsId = el.dataset.id;
-                const targetBts = btsData.find(b => b.id === btsId);
-                if (targetBts) {
-                    goToBts(targetBts);
+                if (el.classList.contains('coordinate-item')) {
+                    const lat = parseFloat(el.dataset.lat);
+                    const lng = parseFloat(el.dataset.lng);
+                    setManualCoordinates(lng, lat);
                     results.style.display = 'none';
-                    input.value = targetBts.name;
+                    input.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                } else {
+                    const btsId = el.dataset.id;
+                    const targetBts = btsData.find(b => b.id === btsId);
+                    if (targetBts) {
+                        goToBts(targetBts);
+                        results.style.display = 'none';
+                        input.value = targetBts.name;
+                    }
                 }
             });
         });
     }
+
 
     function goToBts(bts) {
         map.flyTo({

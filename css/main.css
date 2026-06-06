@@ -377,3 +377,40 @@ body {
 .maplibregl-ctrl-top-left {
     top: 50px !important;
 }
+
+/* Custom manuální GPS tečka */
+.manual-gps-dot {
+    width: 16px;
+    height: 16px;
+    background-color: #3b82f6; /* modrá barva (blue-500) */
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    position: relative;
+    cursor: pointer;
+}
+
+.manual-gps-dot::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 28px;
+    height: 28px;
+    background-color: #3b82f6;
+    opacity: 0.35;
+    border-radius: 50%;
+    animation: gps-pulse 2s infinite ease-out;
+}
+
+@keyframes gps-pulse {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
