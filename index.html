@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>5G/LTE BTS Mapa a Technický Nástroj</title>
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=SF+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mapa -->
+    <div id="map"></div>
+
+    <!-- Horní lišta - Vyhledávání a přepínač operátora -->
+    <div class="top-nav-bar ui-overlay">
+        <!-- Přepínač operátora -->
+        <div id="operator-switcher" class="glass-panel">
+            <button class="operator-btn active" data-operator="o2">O2</button>
+            <button class="operator-btn" data-operator="tmobile">T-Mobile</button>
+        </div>
+
+        <!-- Vyhledávání -->
+        <div id="search-container" class="glass-panel">
+            <div class="search-input-wrapper">
+                <input type="text" id="search-input" placeholder="Hledat adresu, ID, HEX, PCI..." autocomplete="off">
+                <div id="search-clear" class="search-clear">✕</div>
+            </div>
+            <div id="search-results" class="search-results-list"></div>
+        </div>
+    </div>
+
+    <!-- Ovládací prvky na boku mapy -->
+    <div class="side-controls ui-overlay">
+        <!-- Přepínač mapových vrstev -->
+        <div id="map-switcher" class="glass-panel vertical-group">
+            <button class="map-btn active" data-style="basic" title="Základní">🗺️</button>
+            <button class="map-btn" data-style="outdoor" title="Turistická">🥾</button>
+            <button class="map-btn" data-style="aerial" title="Satelit">🛰️</button>
+            <button class="map-btn" data-style="aerial-labels" title="Satelit + popisky">🏷️</button>
+        </div>
+
+        <!-- Akční tlačítka -->
+        <div class="action-buttons vertical-group">
+            <button id="compass-btn" class="glass-circle compass-widget" title="Orientace dle kompasu">
+                <svg id="compass-ring" viewBox="0 0 100 100" class="compass-ring">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                    <text x="50" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#ef4444">N</text>
+                    <text x="88" y="54" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.8)">E</text>
+                    <text x="50" y="93" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.8)">S</text>
+                    <text x="12" y="54" text-anchor="middle" font-size="9" font-weight="600" fill="rgba(255,255,255,0.8)">W</text>
+                </svg>
+                <div class="compass-pointer">▲</div>
+                <div id="compass-degree" class="compass-degree">---</div>
+            </button>
+
+            <button id="sector-btn" class="glass-circle" title="Zobrazit sektory BTS">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <path d="M12 10 L8 3 A10 10 0 0 1 16 3 Z" fill="currentColor" opacity="0.6"/>
+                    <path d="M13.7 11 L20 7 A10 10 0 0 1 20 17 Z" fill="currentColor" opacity="0.6"/>
+                    <path d="M10.3 13 L4 17 A10 10 0 0 1 4 7 Z" fill="currentColor" opacity="0.6"/>
+                </svg>
+            </button>
+
+            <button id="nearest-btn" class="glass-circle" title="3 nejbližší BTS">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <path d="M12 12 L6 6 M12 12 L19 8 M12 12 L15 19" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    <circle cx="6" cy="6" r="1.5"/>
+                    <circle cx="19" cy="8" r="1.5"/>
+                    <circle cx="15" cy="19" r="1.5"/>
+                </svg>
+            </button>
+
+            <!-- Filtr pásem -->
+            <button id="filter-toggle-btn" class="glass-circle" title="Filtrovat pásma">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel filtru pásem (vyskakovací z boku tlačítka) -->
+    <div id="band-filter-panel" class="glass-panel ui-overlay hidden">
+        <div class="filter-header">
+            <h4>Filtrovat pásma</h4>
+            <span id="filter-close-btn">✕</span>
+        </div>
+        <div class="filter-options">
+            <div class="filter-group-title">Technologie 5G (Aktivní)</div>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="NR 3500" checked> <span class="badge n78">n78</span> NR 3500 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="NR 2100" checked> <span class="badge n1">n1</span> NR 2100 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="NR 1800" checked> <span class="badge n3">n3</span> NR 1800 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="NR 700" checked> <span class="badge n28">n28</span> NR 700 MHz</label>
+            
+            <div class="filter-group-title">5G Spektrum Sharing (DSS)</div>
+            <label class="filter-label"><input type="checkbox" id="filter-dss-5g" checked> <span class="badge dss-5g">DSS</span> DSS 5G (Implikované n1/n3)</label>
+            
+            <div class="filter-group-title">Technologie LTE</div>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="LTE 2600" checked> <span class="badge b7">B7</span> LTE 2600 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="LTE 2100" checked> <span class="badge b1">B1</span> LTE 2100 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="LTE 1800" checked> <span class="badge b3">B3</span> LTE 1800 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="LTE 900" checked> <span class="badge b8">B8</span> LTE 900 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="LTE 800" checked> <span class="badge b20">B20</span> LTE 800 MHz</label>
+            <label class="filter-label"><input type="checkbox" class="band-checkbox" value="GSM" checked> <span class="badge gsm">2G</span> GSM / starší</label>
+        </div>
+        <div class="filter-actions">
+            <button id="btn-filter-all" class="btn-secondary">Vše</button>
+            <button id="btn-filter-5g-only" class="btn-primary">Jen 5G</button>
+        </div>
+    </div>
+
+    <!-- Plovoucí upozornění na technický režim -->
+    <div id="tech-mode-alert" class="ui-overlay hidden">
+        🔧 Technický režim aktivní
+    </div>
+
+    <!-- Spodní vysouvací panel (BottomSheet) -->
+    <div id="bts-panel" class="bts-panel ui-overlay hidden">
+        <div class="panel-drag-handle"></div>
+        <div class="panel-header">
+            <div>
+                <h2 id="bts-title">Název vysílače</h2>
+                <div class="panel-meta">
+                    <span id="bts-id" class="bts-id-badge">ID: --</span>
+                    <span id="bts-coords" class="bts-coords-badge">GPS: --</span>
+                </div>
+            </div>
+            <button id="close-panel" class="close-panel-btn">✕</button>
+        </div>
+
+        <!-- Záložky -->
+        <div class="panel-tabs">
+            <button class="tab-btn active" data-tab="tab-overview">Přehled</button>
+            <button class="tab-btn" data-tab="tab-alignment">Směrování & Terén</button>
+            <button class="tab-btn" data-tab="tab-notes">Zápisník</button>
+            <button class="tab-btn" data-tab="tab-report">Protokol</button>
+        </div>
+
+        <!-- Obsah záložek -->
+        <div class="panel-content">
+            
+            <!-- Záložka 1: Přehled buněk -->
+            <div id="tab-overview" class="tab-panel active">
+                <div id="bts-5g-card" class="bts-5g-card hidden">
+                    <span class="icon" id="bts-5g-icon">📡</span>
+                    <span id="bts-5g-info-text">--</span>
+                </div>
+                <div class="table-container">
+                    <table id="cells-table">
+                        <thead>
+                            <tr>
+                                <th>Band</th>
+                                <th>CI (DEC/HEX)</th>
+                                <th>TAC</th>
+                                <th>PCI (Phys)</th>
+                                <th>GSMCID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cells-table-body">
+                            <!-- Bude naplněno JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Záložka 2: Směrování a Profil terénu -->
+            <div id="tab-alignment" class="tab-panel">
+                <div class="alignment-layout">
+                    <!-- Informace o směru -->
+                    <div class="alignment-info">
+                        <div class="info-card">
+                            <span class="label">Vzdálenost</span>
+                            <span id="align-distance" class="value">-- m</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="label">Azimut (Směr)</span>
+                            <span id="align-azimuth" class="value">--°</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="label">Elevace (Sklon)</span>
+                            <span id="align-elevation" class="value">--°</span>
+                        </div>
+                    </div>
+
+                    <!-- Terénní profil -->
+                    <div class="terrain-section">
+                        <h3>Profil terénu a přímá viditelnost (LoS)</h3>
+                        <div class="terrain-container">
+                            <canvas id="terrain-canvas" width="500" height="150"></canvas>
+                            <div id="terrain-loading" class="terrain-overlay hidden">
+                                <div class="spinner"></div>
+                                <span>Načítání výšek terénu...</span>
+                            </div>
+                            <div id="terrain-error" class="terrain-overlay hidden">
+                                ⚠️ Nepodařilo se stáhnout výškový profil.
+                            </div>
+                        </div>
+                        <div class="terrain-legend">
+                            <span class="legend-item"><span class="color-dot user"></span>Zákazník</span>
+                            <span class="legend-item"><span class="color-dot bts"></span>Vysílač</span>
+                            <span class="legend-item"><span class="color-dot los"></span>LoS (přímka)</span>
+                            <span class="legend-item"><span class="color-dot ground"></span>Terén</span>
+                        </div>
+                        <div id="los-status" class="los-status-badge">
+                            Vyhodnocování přímé viditelnosti...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Záložka 3: Technický zápisník -->
+            <div id="tab-notes" class="tab-panel">
+                <!-- Neautorizovaný stav -->
+                <div id="tech-auth-container" class="tech-auth-box">
+                    <p>Pro zobrazení interních poznámek zadejte technický klíč:</p>
+                    <div class="auth-input-group">
+                        <input type="password" id="tech-password" placeholder="Zadejte kód (např. 1:technik.pozn)">
+                        <button id="btn-unlock-tech" class="btn-primary">Odemknout</button>
+                    </div>
+                </div>
+
+                <!-- Autorizovaný stav -->
+                <div id="tech-note-container" class="tech-note-box hidden">
+                    <div class="note-header">
+                        <h3>Technický zápisník k vysílači</h3>
+                        <div class="notes-actions">
+                            <button id="btn-import-notes" class="btn-secondary btn-sm" title="Import poznámek ze souboru">Import 📥</button>
+                            <button id="btn-export-notes" class="btn-secondary btn-sm" title="Export všech poznámek">Export 📤</button>
+                            <input type="file" id="notes-file-input" class="hidden" accept=".json">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tech-note">Interní technické poznámky (viditelné pouze pro techniky):</label>
+                        <textarea id="tech-note" rows="5" placeholder="Sem zapište poznámky o přístupu, zámcích, specifickém rušení, dohodách s majitelem budovy..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="public-note">Obecné veřejné poznámky k vysílači:</label>
+                        <textarea id="public-note" rows="2" placeholder="Obecné informace o lokalitě..."></textarea>
+                    </div>
+
+                    <button id="btn-save-notes" class="btn-primary w-full">Uložit poznámky</button>
+                </div>
+            </div>
+
+            <!-- Záložka 4: Instalační protokol -->
+            <div id="tab-report" class="tab-panel">
+                <form id="report-form" class="report-grid">
+                    <div class="form-section-title">Informace o zákazníkovi</div>
+                    <div class="form-group">
+                        <label for="rep-cust-name">Jméno zákazníka / Firma</label>
+                        <input type="text" id="rep-cust-name" placeholder="např. Jan Novák" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rep-cust-addr">Instalační adresa</label>
+                        <input type="text" id="rep-cust-addr" placeholder="Ulice, č.p., město" required>
+                    </div>
+
+                    <div class="form-section-title">Naměřené parametry signálu</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rep-rsrp">RSRP (dBm)</label>
+                            <input type="number" id="rep-rsrp" placeholder="např. -85" step="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rep-rsrq">RSRQ (dB)</label>
+                            <input type="number" id="rep-rsrq" placeholder="např. -12" step="0.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rep-sinr">SINR (dB)</label>
+                            <input type="number" id="rep-sinr" placeholder="např. 18" step="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Test rychlosti a HW</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rep-dl">Download (Mbps)</label>
+                            <input type="number" id="rep-dl" placeholder="např. 250" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rep-ul">Upload (Mbps)</label>
+                            <input type="number" id="rep-ul" placeholder="např. 50" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rep-ping">Ping (ms)</label>
+                            <input type="number" id="rep-ping" placeholder="např. 15" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rep-sn">Výrobní číslo modemu (SN)</label>
+                        <input type="text" id="rep-sn" placeholder="např. 5GMOD832948293" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="btn-generate-report" class="btn-primary w-full">Generovat instalační protokol 📄</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Komponenta pro tisk protokolu (skrytá na obrazovce, viditelná při tisku) -->
+    <div id="print-report-template" class="print-only">
+        <div class="print-header">
+            <h1>Protokol o instalaci a měření 5G/LTE</h1>
+            <div class="print-date" id="print-date">Datum: --</div>
+        </div>
+        
+        <div class="print-section">
+            <h2>1. Údaje o instalaci</h2>
+            <table class="print-table">
+                <tr><th>Zákazník:</th><td id="print-cust-name">--</td></tr>
+                <tr><th>Adresa:</th><td id="print-cust-addr">--</td></tr>
+                <tr><th>Výrobní číslo modemu (SN):</th><td id="print-cust-sn">--</td></tr>
+            </table>
+        </div>
+
+        <div class="print-section">
+            <h2>2. Parametry připojeného vysílače</h2>
+            <table class="print-table">
+                <tr><th>Vysílač:</th><td id="print-bts-name">--</td></tr>
+                <tr><th>ID vysílače:</th><td id="print-bts-id">--</td></tr>
+                <tr><th>Operátor:</th><td id="print-operator">--</td></tr>
+                <tr><th>Vzdušná vzdálenost:</th><td id="print-distance">--</td></tr>
+                <tr><th>Směrový azimut:</th><td id="print-azimuth">--</td></tr>
+            </table>
+        </div>
+
+        <div class="print-section">
+            <h2>3. Naměřené hodnoty signálu a rychlosti</h2>
+            <table class="print-table compact">
+                <thead>
+                    <tr>
+                        <th>RSRP (síla signálu)</th>
+                        <th>RSRQ (kvalita signálu)</th>
+                        <th>SINR (šum)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="print-rsrp" class="center">-- dBm</td>
+                        <td id="print-rsrq" class="center">-- dB</td>
+                        <td id="print-sinr" class="center">-- dB</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <table class="print-table compact">
+                <thead>
+                    <tr>
+                        <th>Rychlost stahování (Download)</th>
+                        <th>Rychlost odesílání (Upload)</th>
+                        <th>Odezva (Ping)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="print-dl" class="center">-- Mbps</td>
+                        <td id="print-ul" class="center">-- Mbps</td>
+                        <td id="print-ping" class="center">-- ms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="print-signatures">
+            <div class="sig-box">
+                <div class="sig-line"></div>
+                Podpis technika
+            </div>
+            <div class="sig-box">
+                <div class="sig-line"></div>
+                Podpis zákazníka
+            </div>
+        </div>
+    </div>
+
+    <!-- Skripty -->
+    <script src="js/tech-logic.js"></script>
+    <script src="js/map-logic.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrován:', reg.scope))
+                    .catch(err => console.log('Selhala registrace Service Workera:', err));
+            });
+        }
+    </script>
+</body>
+</html>
