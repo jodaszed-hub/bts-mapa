@@ -60,19 +60,19 @@ button:focus-visible, input:focus-visible, select:focus-visible,
   grid-template-columns: max-content minmax(0, 1fr) max-content max-content max-content;
   grid-template-areas:
     "operator . compass basemap actions"
-    "search search search filters filters"
+    "search search search search search"
     "status status status status status";
   align-items: start;
   gap: 8px;
   pointer-events: none;
 }
 
-.map-tools button, .map-tools input, .map-tools select,
+.map-tools button, .map-tools input,
 .search-results-list, .search-message {
   pointer-events: auto;
 }
 
-#operator-switcher, #map-switcher, #filter-controls {
+#operator-switcher, #map-switcher {
   display: flex;
   gap: 4px;
   padding: 3px;
@@ -108,40 +108,6 @@ button:focus-visible, input:focus-visible, select:focus-visible,
 
 .operator-btn.active[data-operator="tmobile"] {
   background: #a90056;
-}
-
-#filter-controls {
-  grid-area: filters;
-  padding: 5px 6px;
-  gap: 6px;
-}
-
-.filter-control {
-  display: grid;
-  flex: 1 1 0;
-  min-width: 0;
-  gap: 2px;
-  color: #374151;
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.filter-control span {
-  margin-inline-start: 3px;
-}
-
-.filter-control select {
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 8px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
-  background: #fff;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
 }
 
 .map-status {
@@ -519,7 +485,6 @@ button:focus-visible, input:focus-visible, select:focus-visible,
       "operator compass"
       "basemap actions"
       "search search"
-      "filters filters"
       "status status";
   }
   #map-switcher {
@@ -537,7 +502,6 @@ button:focus-visible, input:focus-visible, select:focus-visible,
       "basemap basemap"
       "actions actions"
       "search search"
-      "filters filters"
       "status status";
   }
 }

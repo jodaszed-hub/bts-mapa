@@ -7,7 +7,7 @@
     <!-- MapLibre GL JS -->
     <script src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/main.css?v=2">
+    <link rel="stylesheet" href="css/main.css?v=3">
 </head>
 <body>
 
@@ -88,24 +88,6 @@
             <p id="search-status" class="search-message" role="status" aria-live="polite" hidden></p>
         </div>
 
-        <div id="filter-controls" role="group" aria-label="Filtry BTS">
-            <label class="filter-control" for="technology-filter">
-                <span>Technologie</span>
-                <select id="technology-filter">
-                    <option value="all">Všechny</option>
-                    <option value="gsm">2G / GSM</option>
-                    <option value="lte">4G / LTE</option>
-                    <option value="nr">5G / NR</option>
-                </select>
-            </label>
-            <label class="filter-control" for="band-filter">
-                <span>Pásmo</span>
-                <select id="band-filter">
-                    <option value="all">Všechna</option>
-                </select>
-            </label>
-        </div>
-
         <div class="map-status">
             <p id="data-status" role="status">Načítám data BTS…</p>
             <p id="position-status" role="status"></p>
@@ -115,6 +97,6 @@
     <p id="sector-note" class="ui-overlay sector-note" role="status" hidden>
         Schéma sektorů. Skutečný azimut antén a dosah signálu neznáme.
     </p>
-    <script type="module" src="js/map-logic.js?v=2"></script>
+    <script type="module" src="js/map-logic.js?v=3"></script>
 </body>
 </html>

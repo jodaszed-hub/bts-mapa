@@ -1,5 +1,5 @@
-import { cellTechnology, createBtsSearch } from './bts-search.mjs';
-import { createBtsDetail, formatBand } from './bts-detail.mjs';
+import { createBtsSearch } from './bts-search.mjs';
+import { createBtsDetail } from './bts-detail.mjs';
 
 const operators = {
     o2: { name: 'O2', file: 'bts-data.json', color: '#dc2626', stroke: '#991b1b' },
@@ -7,8 +7,7 @@ const operators = {
 };
 
 let operatorSites = [];
-let visibleSites = [];
-let visibleSitesById = new Map();
+let operatorSitesById = new Map();
 let currentOperator = null;
 let requestSequence = 0;
 const operatorDownloads = new Map();
@@ -155,7 +154,6 @@ function initMap() {
 
     map.once('load', async () => {
         setupOperatorSwitcher();
-        setupFilters();
         search = createBtsSearch({
             input: document.getElementById('search-input'),
             results: document.getElementById('search-results'),
@@ -166,7 +164,7 @@ function initMap() {
         });
 
         map.on('click', 'layer-bts-touch', (event) => {
-            const site = visibleSitesById.get(event.features[0]?.properties.id);
+            const site = operatorSitesById.get(event.features[0]?.properties.id);
             if (site) showBts(site);
         });
         map.on('click', (event) => {
@@ -183,7 +181,7 @@ function initMap() {
         const params = new URLSearchParams(location.search);
         const operator = params.get('operator') === 'tmobile' ? 'tmobile' : 'o2';
         if (await loadBtsData(operator) && params.has('bts')) {
-            const site = visibleSitesById.get(params.get('bts'));
+            const site = operatorSitesById.get(params.get('bts'));
             if (site) {
                 focusBts(site);
             } else {
@@ -267,7 +265,6 @@ async function loadBtsData(operator) {
 
     currentOperator = operator;
     operatorSites = sites;
-    updateBandOptions();
     renderSites();
     document.querySelectorAll('.operator-btn').forEach((button) => {
         const selected = button.dataset.operator === operator;
@@ -283,47 +280,13 @@ function setupOperatorSwitcher() {
     });
 }
 
-function setupFilters() {
-    document.getElementById('technology-filter').addEventListener('change', () => {
-        updateBandOptions();
-        renderSites();
-    });
-    document.getElementById('band-filter').addEventListener('change', renderSites);
-}
-
-function updateBandOptions() {
-    const technology = document.getElementById('technology-filter').value;
-    const select = document.getElementById('band-filter');
-    const previous = select.value;
-    const bands = new Set();
-    operatorSites.forEach((site) => {
-        site.cells.forEach((cell) => {
-            if (technology === 'all' || cellTechnology(cell) === technology) bands.add(cell.band);
-        });
-    });
-    const options = [...bands].sort((a, b) => a.localeCompare(b, 'cs', { numeric: true }));
-    select.replaceChildren(new Option('Všechna', 'all'), ...options.map((band) => new Option(formatBand(band), band)));
-    select.value = bands.has(previous) ? previous : 'all';
-}
-
 function renderSites() {
-    if (!currentOperator) return;
-
-    const technology = document.getElementById('technology-filter').value;
-    const band = document.getElementById('band-filter').value;
-    visibleSites = technology === 'all' && band === 'all' ? operatorSites : operatorSites.flatMap((site) => {
-        const cells = site.cells.filter((cell) => (
-            (technology === 'all' || cellTechnology(cell) === technology) &&
-            (band === 'all' || cell.band === band)
-        ));
-        return cells.length ? [{ ...site, cells }] : [];
-    });
-    visibleSitesById = new Map(visibleSites.map((site) => [site.id, site]));
-    search.setSites(visibleSites);
+    operatorSitesById = new Map(operatorSites.map((site) => [site.id, site]));
+    search.setSites(operatorSites);
 
     const geojson = {
         type: 'FeatureCollection',
-        features: visibleSites.map(({ id, coords }) => ({
+        features: operatorSites.map(({ id, coords }) => ({
             type: 'Feature',
             properties: { id },
             geometry: { type: 'Point', coordinates: coords }
@@ -359,8 +322,8 @@ function renderSites() {
     closeBtsPopup();
     clearSectors();
     refreshNearest();
-    const count = new Intl.NumberFormat('cs-CZ').format(visibleSites.length);
-    setStatus('data-status', visibleSites.length ? `${operator.name} · ${count} BTS` : `${operator.name} · Filtru neodpovídá žádná BTS.`);
+    const count = new Intl.NumberFormat('cs-CZ').format(operatorSites.length);
+    setStatus('data-status', `${operator.name} · ${count} BTS`);
 }
 
 // ====== PŘEPÍNAČ MAPOVÝCH PODKLADŮ ======
@@ -904,10 +867,10 @@ function clearNearestLines() {
 function showNearestBts(userLng, userLat) {
     clearNearestLines();
 
-    if (!visibleSites.length) return;
+    if (!operatorSites.length) return;
 
     const nearest = [];
-    for (const site of visibleSites) {
+    for (const site of operatorSites) {
         const dist = haversineDistance(userLng, userLat, ...site.coords);
         if (nearest.length < 3 || dist < nearest[2].dist) {
             nearest.push({ coords: site.coords, dist });
