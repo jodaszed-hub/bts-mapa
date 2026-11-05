@@ -1,23 +1,85 @@
-let btsData = [];
-let currentOperator = "o2";
+import { cellTechnology, createBtsSearch } from './bts-search.mjs';
+import { createBtsDetail, formatBand } from './bts-detail.mjs';
+
+const operators = {
+    o2: { name: 'O2', file: 'bts-data.json', color: '#dc2626', stroke: '#991b1b' },
+    tmobile: { name: 'T-Mobile', file: 'bts-data-tmobile.json', color: '#e20074', stroke: '#99004d' }
+};
+
+let operatorSites = [];
+let visibleSites = [];
+let visibleSitesById = new Map();
+let currentOperator = null;
+let requestSequence = 0;
+const operatorDownloads = new Map();
+let search;
+let popup;
 
 const API_KEY = "QgTpsrlenL20brYpGs0q3EpgJxRp4AuoywAjGVd_6yw";
 let map;
 let geolocateControl = null;
-let gpsTrackingActive = false;
+let gpsRequested = false;
+let gpsButtonPressed = false;
+let gpsFixPending = false;
+let gpsCoordinates = null;
 let manualCoordinates = null;
 let userLocationMarker = null;
 
-
-// Spustí GPS lokalizaci jen pokud ještě neběží (aby se nevypínala při opakovaném volání)
-function ensureGpsActive() {
-    if (!geolocateControl) return;
-    if (!gpsTrackingActive) {
-        geolocateControl.trigger();
-    }
+function setStatus(id, message) {
+    document.getElementById(id).textContent = message;
 }
 
-// Vlaječky a markery
+function installGeolocation() {
+    const control = new maplibregl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true, timeout: 7000, maximumAge: 2000 },
+        trackUserLocation: true,
+        showUserHeading: true,
+        fitBoundsOptions: { maxZoom: 15 }
+    });
+    geolocateControl = control;
+    gpsRequested = false;
+    gpsFixPending = false;
+
+    control.on('trackuserlocationstart', () => {
+        if (control !== geolocateControl) return;
+        gpsRequested = true;
+        if (!gpsCoordinates) {
+            gpsFixPending = true;
+            setStatus('position-status', 'Zjišťuji polohu…');
+        }
+    });
+    control.on('trackuserlocationend', () => {
+        // This also fires on map panning. Only a GPS button press ends our fix.
+        if (control !== geolocateControl || !gpsButtonPressed) return;
+        gpsFixPending = false;
+        gpsCoordinates = null;
+        if (!manualCoordinates) setNearestActive(false);
+        setStatus('position-status', '');
+    });
+    control.on('geolocate', ({ coords }) => {
+        if (control !== geolocateControl) return;
+        gpsFixPending = false;
+        gpsCoordinates = [coords.longitude, coords.latitude];
+        manualCoordinates = null;
+        userLocationMarker?.remove();
+        userLocationMarker = null;
+        setStatus('position-status', '');
+        refreshNearest();
+    });
+    control.on('error', (event) => {
+        if (control !== geolocateControl) return;
+        gpsFixPending = false;
+        const denied = event.code === 1;
+        setStatus('position-status', denied
+            ? 'Přístup k poloze je zamítnutý. Zadejte souřadnice do hledání.'
+            : 'Polohu se nepodařilo získat. Zkuste GPS znovu nebo zadejte souřadnice.');
+        if (!manualCoordinates) {
+            gpsCoordinates = null;
+            setNearestActive(false);
+        }
+    });
+    map.addControl(control, 'top-left');
+}
 
 function initMap() {
     // Inicializace MapLibre GL mapy s Mapy.cz REST API stylem
@@ -49,35 +111,12 @@ function initMap() {
         zoom: 12
     });
 
-    // Přidání ovládacích prvků (navigace a kompas) - ODEBRÁNO DLE POŽADAVKU
-    // map.addControl(new maplibregl.NavigationControl(), 'top-left');
-
-    // Přidání GPS geolokace (lokalizace zařízení a zoom)
-    geolocateControl = new maplibregl.GeolocateControl({
-        positionOptions: {
-            enableHighAccuracy: true
-        },
-        trackUserLocation: true,
-        showUserHeading: true,
-        fitBoundsOptions: {
-            maxZoom: 15
-        }
-    });
-    map.addControl(geolocateControl, 'top-left');
-
-    // Sledování stavu GPS
-    geolocateControl.on('trackuserlocationstart', () => { 
-        gpsTrackingActive = true; 
-        if (manualCoordinates) {
-            manualCoordinates = null;
-            if (userLocationMarker) {
-                userLocationMarker.remove();
-                userLocationMarker = null;
-            }
-        }
-    });
-    geolocateControl.on('trackuserlocationend', () => { gpsTrackingActive = false; });
-
+    installGeolocation();
+    map.getContainer().addEventListener('click', (event) => {
+        if (!event.target.closest('.maplibregl-ctrl-geolocate')) return;
+        gpsButtonPressed = true;
+        queueMicrotask(() => { gpsButtonPressed = false; });
+    }, true);
 
     // Hint "Začni zde" u GPS tlačítka
     map.on('load', () => {
@@ -114,178 +153,192 @@ function initMap() {
         }, 800); // malá pauza po načtení mapy
     });
 
-    map.on('load', async () => {
-        await loadBtsData('o2');
+    map.once('load', async () => {
         setupOperatorSwitcher();
+        setupFilters();
+        search = createBtsSearch({
+            input: document.getElementById('search-input'),
+            results: document.getElementById('search-results'),
+            clearButton: document.getElementById('search-clear'),
+            onSelectBts: focusBts,
+            onSelectCoordinates: setManualCoordinates,
+            onStats: showVisitStats
+        });
 
-        // Neviditelné počítadlo návštěv
-        try {
-            fetch('https://api.counterapi.dev/v1/sydloch-btsmapa/visits/up', { mode: 'no-cors' });
-        } catch (e) {}
-
-        // Kliknutí na bod (viditelná i dotyková vrstva)
-        const handleBtsClick = (e) => {
-            if (e.features.length > 0) {
-                const feature = e.features[0];
-                const coords = feature.geometry.coordinates.slice();
-                const props = feature.properties;
-                
-                // Zajistí správné souřadnice při odzoomování
-                while (Math.abs(e.lngLat.lng - coords[0]) > 180) {
-                    coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
-                }
-
-                // Získání a parsování dat o buňkách
-                let cells = [];
-                try {
-                    cells = JSON.parse(props.cells);
-                } catch(e) {}
-                
-                // Seskupení a seřazení buněk (např. podle pásma)
-                cells.sort((a, b) => a.band.localeCompare(b.band));
-                
-                let tableRows = '';
-                // Mapování frekvence → reálné číslo bandu (3GPP standard, O2 CZ)
-                const bandMap = {
-                    'LTE 800': 'B20', 'LTE 900': 'B8', 'LTE 1800': 'B3',
-                    'LTE 2100': 'B1', 'LTE 2600': 'B7',
-                    'NR 700': 'N28', 'NR 1800': 'N3', 'NR 2100': 'N1', 'NR 3500': 'N78',
-                    'GSM': '2G'
-                };
-                cells.forEach(cell => {
-                    const band = bandMap[cell.band] || cell.band;
-                    // Použijeme full_cid z CSV pokud existuje, jinak původní ci
-                    const displayCi = cell.full_cid || cell.ci;
-                    
-                    // Převod na HEX pro srovnání s modemem
-                    let hexCi = '';
-                    if (displayCi) {
-                        let dec = NaN;
-                        if (displayCi.includes(':')) {
-                            const parts = displayCi.split(':');
-                            if (parts.length === 2) {
-                                const enb = parseInt(parts[0]);
-                                const sec = parseInt(parts[1]);
-                                if (!isNaN(enb) && !isNaN(sec)) {
-                                    dec = enb * 256 + sec;
-                                }
-                            }
-                        } else {
-                            dec = parseInt(displayCi);
-                        }
-                        if (!isNaN(dec)) {
-                            hexCi = ` <span style="color:#9ca3af;font-weight:400;font-size:8px;">(${dec.toString(16).toUpperCase()})</span>`;
-                        }
-                    }
-
-                    tableRows += `
-                        <tr style="border-bottom:1px solid #f3f4f6;">
-                            <td style="padding:2px 3px;white-space:nowrap;color:#2563eb;font-weight:700;font-size:10px;">${band}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;font-family:monospace;font-size:9px;">${displayCi}${hexCi}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.tac || '-'}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;color:#6b7280;font-size:9px;">${cell.phys || '-'}</td>
-                            <td style="padding:2px 3px;white-space:nowrap;color:#1e40af;font-size:9px;font-weight:600;">${cell.gsmcid || '-'}</td>
-                        </tr>
-                    `;
-                });
-
-                // Sestavení kompaktního HTML pro mobil
-                const htmlContent = `
-                    <div style="padding:0;color:#1f2937;max-width:280px;">
-                        <div style="background:#eff6ff;padding:5px 8px;border-bottom:1px solid #dbeafe;">
-                            <div style="font-weight:700;font-size:11px;color:#1e40af;line-height:1.3;padding-right:16px;">${props.name}</div>
-                        </div>
-                        <div style="max-height:180px;overflow-y:auto;overflow-x:hidden;">
-                            <table style="width:100%;text-align:left;border-collapse:collapse;">
-                                <thead>
-                                    <tr style="background:#f3f4f6;position:sticky;top:0;">
-                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Band</th>
-                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">CI (HEX)</th>
-                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">TAC</th>
-                                        <th style="padding:2px 3px;font-size:9px;color:#6b7280;font-weight:600;">Phys</th>
-                                        <th style="padding:2px 3px;font-size:9px;color:#1e40af;font-weight:600;">GSMCID</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${tableRows}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-
-                // Kresli sektory pokud je režim aktivní, jinak otevři Popup tabulku
-                if (sectorMode) {
-                    drawSectors(coords, cells);
-                } else {
-                    const popup = new maplibregl.Popup({
-                        closeButton: true,
-                        closeOnClick: true,
-                        maxWidth: '72vw',
-                        className: 'modern-popup'
-                    })
-                    .setLngLat(coords)
-                    .setHTML(htmlContent)
-                    .addTo(map);
-                }
-            }
-        };
-
-        map.on('click', 'layer-bts-touch', handleBtsClick);
-        map.on('click', 'layer-bts-points', handleBtsClick);
-
-        // Zavření sektorů při kliknutí na pozadí mapy
-        map.on('click', (e) => {
-            const features = map.queryRenderedFeatures(e.point, { layers: ['layer-bts-points', 'layer-bts-touch'] });
-            if (features.length === 0) {
+        map.on('click', 'layer-bts-touch', (event) => {
+            const site = visibleSitesById.get(event.features[0]?.properties.id);
+            if (site) showBts(site);
+        });
+        map.on('click', (event) => {
+            if (!map.getLayer('layer-bts-touch') ||
+                map.queryRenderedFeatures(event.point, { layers: ['layer-bts-touch'] }).length === 0) {
                 clearSectors();
             }
         });
+        map.on('mouseenter', 'layer-bts-touch', () => map.getCanvas().style.cursor = 'pointer');
+        map.on('mouseleave', 'layer-bts-touch', () => map.getCanvas().style.cursor = '');
 
-        // Změna kurzoru při najetí na bod
-        map.on('mouseenter', 'layer-bts-touch', () => {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'layer-bts-touch', () => {
-            map.getCanvas().style.cursor = '';
-        });
+        fetch('https://api.counterapi.dev/v1/sydloch-btsmapa/visits/up', { mode: 'no-cors' }).catch(() => {});
 
+        const params = new URLSearchParams(location.search);
+        const operator = params.get('operator') === 'tmobile' ? 'tmobile' : 'o2';
+        if (await loadBtsData(operator) && params.has('bts')) {
+            const site = visibleSitesById.get(params.get('bts'));
+            if (site) {
+                focusBts(site);
+            } else {
+                setStatus('data-status', 'BTS z odkazu se v této síti nenašla.');
+            }
+        }
     });
 }
 
-
-async function loadBtsData(operator) {
-    currentOperator = operator;
-    const filename = operator === 'tmobile' ? 'bts-data-tmobile.json' : 'bts-data.json';
+async function showVisitStats() {
     try {
-        const response = await fetch(filename + '?v=' + new Date().getTime());
-        btsData = await response.json();
-        console.log("Načteno " + btsData.length + " vysílačů z " + filename);
-        if (typeof setupSearch === 'function') setupSearch();
-    } catch(e) {
-        console.error("Nepodařilo se načíst data vysílačů.", e);
+        const response = await fetch('https://api.counterapi.dev/v1/sydloch-btsmapa/visits');
+        if (!response.ok) throw new Error('Statistiky nejsou dostupné');
+        const data = await response.json();
+        setStatus('data-status', `Počet načtení mapy: ${data.count}`);
+    } catch {
+        setStatus('data-status', 'Statistiky návštěv se nepodařilo načíst.');
+    }
+}
+
+function closeBtsPopup() {
+    popup?.remove();
+    popup = null;
+}
+
+function showBts(site, anchor) {
+    closeBtsPopup();
+    if (sectorMode) {
+        drawSectors(site.coords, site.cells);
         return;
     }
+    const shareUrl = new URL(location.pathname, location.origin);
+    shareUrl.searchParams.set('operator', currentOperator);
+    shareUrl.searchParams.set('bts', site.id);
+    popup = new maplibregl.Popup({ anchor, maxWidth: 'none', className: 'modern-popup' })
+        .setLngLat(site.coords)
+        .setDOMContent(createBtsDetail(site, { operator: currentOperator, shareUrl: shareUrl.href }))
+        .addTo(map);
+}
 
-    const pointsData = [];
-    btsData.forEach(bts => {
-        pointsData.push({
-            type: 'Feature',
-            properties: { id: bts.id, name: bts.name, cells: JSON.stringify(bts.cells) },
-            geometry: { type: 'Point', coordinates: bts.coords }
+function focusBts(site) {
+    map.flyTo({ center: site.coords, zoom: 16 });
+    showBts(site, 'top');
+}
+
+function getOperatorSites(operator) {
+    if (!operatorDownloads.has(operator)) {
+        const download = fetch(operators[operator].file, { cache: 'no-cache' })
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then((sites) => {
+                if (!Array.isArray(sites)) throw new Error('Neplatný formát dat BTS');
+                return sites;
+            })
+            .catch((error) => {
+                operatorDownloads.delete(operator);
+                throw error;
+            });
+        operatorDownloads.set(operator, download);
+    }
+    return operatorDownloads.get(operator);
+}
+
+async function loadBtsData(operator) {
+    const request = ++requestSequence;
+    const { name } = operators[operator];
+    setStatus('data-status', `Načítám síť ${name}…`);
+    let sites;
+    try {
+        sites = await getOperatorSites(operator);
+    } catch (error) {
+        if (request === requestSequence) {
+            console.error('Načítání BTS selhalo', error);
+            setStatus('data-status', `Síť ${name} se nepodařilo načíst. Zkuste ji vybrat znovu.`);
+        }
+        return false;
+    }
+    if (request !== requestSequence) return false;
+
+    currentOperator = operator;
+    operatorSites = sites;
+    updateBandOptions();
+    renderSites();
+    document.querySelectorAll('.operator-btn').forEach((button) => {
+        const selected = button.dataset.operator === operator;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+    });
+    return true;
+}
+
+function setupOperatorSwitcher() {
+    document.querySelectorAll('.operator-btn').forEach((button) => {
+        button.addEventListener('click', () => loadBtsData(button.dataset.operator));
+    });
+}
+
+function setupFilters() {
+    document.getElementById('technology-filter').addEventListener('change', () => {
+        updateBandOptions();
+        renderSites();
+    });
+    document.getElementById('band-filter').addEventListener('change', renderSites);
+}
+
+function updateBandOptions() {
+    const technology = document.getElementById('technology-filter').value;
+    const select = document.getElementById('band-filter');
+    const previous = select.value;
+    const bands = new Set();
+    operatorSites.forEach((site) => {
+        site.cells.forEach((cell) => {
+            if (technology === 'all' || cellTechnology(cell) === technology) bands.add(cell.band);
         });
     });
+    const options = [...bands].sort((a, b) => a.localeCompare(b, 'cs', { numeric: true }));
+    select.replaceChildren(new Option('Všechna', 'all'), ...options.map((band) => new Option(formatBand(band), band)));
+    select.value = bands.has(previous) ? previous : 'all';
+}
 
-    const geojsonData = { type: 'FeatureCollection', features: pointsData };
+function renderSites() {
+    if (!currentOperator) return;
 
-    if (map.getSource('bts-points')) {
-        map.getSource('bts-points').setData(geojsonData);
-        map.setPaintProperty('layer-bts-points', 'circle-color', operator === 'tmobile' ? '#e20074' : '#dc2626');
-        map.setPaintProperty('layer-bts-points', 'circle-stroke-color', operator === 'tmobile' ? '#99004d' : '#991b1b');
+    const technology = document.getElementById('technology-filter').value;
+    const band = document.getElementById('band-filter').value;
+    visibleSites = technology === 'all' && band === 'all' ? operatorSites : operatorSites.flatMap((site) => {
+        const cells = site.cells.filter((cell) => (
+            (technology === 'all' || cellTechnology(cell) === technology) &&
+            (band === 'all' || cell.band === band)
+        ));
+        return cells.length ? [{ ...site, cells }] : [];
+    });
+    visibleSitesById = new Map(visibleSites.map((site) => [site.id, site]));
+    search.setSites(visibleSites);
+
+    const geojson = {
+        type: 'FeatureCollection',
+        features: visibleSites.map(({ id, coords }) => ({
+            type: 'Feature',
+            properties: { id },
+            geometry: { type: 'Point', coordinates: coords }
+        }))
+    };
+    const operator = operators[currentOperator];
+    const source = map.getSource('bts-points');
+    if (source) {
+        source.setData(geojson);
+        map.setPaintProperty('layer-bts-points', 'circle-color', operator.color);
+        map.setPaintProperty('layer-bts-points', 'circle-stroke-color', operator.stroke);
     } else {
         map.addSource('bts-points', {
             type: 'geojson',
-            data: geojsonData,
+            data: geojson,
             tolerance: 0,
             attribution: 'Data BTS: <a href="https://gsmweb.cz/">GSMweb.cz</a>'
         });
@@ -295,12 +348,7 @@ async function loadBtsData(operator) {
         });
         map.addLayer({
             id: 'layer-bts-points', type: 'circle', source: 'bts-points',
-            paint: {
-                'circle-radius': 5,
-                'circle-color': operator === 'tmobile' ? '#e20074' : '#dc2626',
-                'circle-stroke-width': 1,
-                'circle-stroke-color': operator === 'tmobile' ? '#99004d' : '#991b1b'
-            }
+            paint: { 'circle-radius': 5, 'circle-color': operator.color, 'circle-stroke-width': 1, 'circle-stroke-color': operator.stroke }
         });
         map.addLayer({
             id: 'layer-bts-touch', type: 'circle', source: 'bts-points',
@@ -308,26 +356,11 @@ async function loadBtsData(operator) {
         });
     }
 
-    if (typeof clearSectors === 'function') clearSectors();
-    if (typeof clearNearestLines === 'function') clearNearestLines();
-}
-
-function setupOperatorSwitcher() {
-    const buttons = document.querySelectorAll('.operator-btn');
-    buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const op = btn.dataset.operator;
-            buttons.forEach(b => {
-                b.classList.remove('active');
-                b.style.background = 'transparent';
-                b.style.color = '#4b5563';
-            });
-            btn.classList.add('active');
-            btn.style.background = op === 'tmobile' ? '#e20074' : '#3b82f6';
-            btn.style.color = 'white';
-            loadBtsData(op);
-        });
-    });
+    closeBtsPopup();
+    clearSectors();
+    refreshNearest();
+    const count = new Intl.NumberFormat('cs-CZ').format(visibleSites.length);
+    setStatus('data-status', visibleSites.length ? `${operator.name} · ${count} BTS` : `${operator.name} · Filtru neodpovídá žádná BTS.`);
 }
 
 // ====== PŘEPÍNAČ MAPOVÝCH PODKLADŮ ======
@@ -336,8 +369,10 @@ function setupMapSwitcher() {
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
             const style = btn.dataset.style;
-            buttons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            buttons.forEach(b => {
+                b.classList.toggle('active', b === btn);
+                b.setAttribute('aria-pressed', String(b === btn));
+            });
             switchMapStyle(style);
         });
     });
@@ -386,6 +421,7 @@ function switchMapStyle(style) {
 // Vzor dle maplibre-gl-compass: jednoduchý, ověřený přístup
 let compassActive = false;
 let rafId = null;
+let compassTimeout = null;
 
 // Handlery
 let compassAbsoluteHandler = null;
@@ -401,15 +437,14 @@ let lastCalibHintTime = 0;
 
 // Vypočítej heading z eventu (dle maplibre-gl-compass)
 function calculateCompassHeading(event) {
-    // iOS – webkitCompassHeading je přímo magnetický azimut
-    if (event.webkitCompassHeading != null) {
-        return event.webkitCompassHeading;
-    }
-    // Android/ostatní – alpha invertovat
-    if (event.alpha == null) return null;
-    let heading = 360 - event.alpha;
-    if (heading < 0) heading += 360;
-    return heading;
+    const heading = Number.isFinite(event.webkitCompassHeading) && event.webkitCompassHeading >= 0
+        ? event.webkitCompassHeading
+        : (event.absolute || event.type === 'deviceorientationabsolute') && Number.isFinite(event.alpha)
+            ? 360 - event.alpha
+            : null;
+    if (heading === null) return null;
+    const rotation = screen.orientation?.angle ?? window.orientation ?? 0;
+    return ((heading + rotation) % 360 + 360) % 360;
 }
 
 // Kruhový klouzavý průměr (sin/cos – správně přes 0°/360°)
@@ -447,6 +482,8 @@ function checkStability() {
 // Společný handler pro oba eventy
 function onDeviceOrientation(event) {
     if (!compassActive) return;
+    const heading = calculateCompassHeading(event);
+    if (heading == null) return;
 
     // Pokud přijde absoluteorientation, odpoj relativní (a naopak pro iOS)
     if (event.type === 'deviceorientationabsolute' && event.alpha != null) {
@@ -460,9 +497,6 @@ function onDeviceOrientation(event) {
             compassAbsoluteHandler = null;
         }
     }
-
-    const heading = calculateCompassHeading(event);
-    if (heading == null) return;
 
     headingHistory.push(heading);
     if (headingHistory.length > HISTORY_SIZE) headingHistory.shift();
@@ -483,7 +517,8 @@ function compassRenderLoop() {
     if (currentHeading !== null) {
         // setBearing přímo – MapLibre bearing = heading pro "heading-up" režim
         // Během interakce uživatele (zoom/panning) nevnucujeme bearing, aby se mapa netrhala
-        if (!isUserInteracting && !map.isZooming() && !map.isMoving() && Math.abs(currentHeading - map.getBearing()) >= 0.5) {
+        const delta = (currentHeading - map.getBearing() + 540) % 360 - 180;
+        if (!isUserInteracting && !map.isZooming() && !map.isMoving() && Math.abs(delta) >= 0.5) {
             map.setBearing(currentHeading);
         }
 
@@ -496,7 +531,7 @@ function compassRenderLoop() {
         // Zobraz azimut ve stupních
         const degEl = document.getElementById('compass-degree');
         if (degEl) {
-            degEl.textContent = Math.round(currentHeading) + '°';
+            degEl.textContent = Math.round(currentHeading) % 360 + '°';
         }
     }
 
@@ -525,11 +560,15 @@ function stopCompass() {
     headingHistory = [];
 
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    clearTimeout(compassTimeout);
     if (compassAbsoluteHandler) { window.removeEventListener('deviceorientationabsolute', compassAbsoluteHandler, true); compassAbsoluteHandler = null; }
     if (compassFallbackHandler) { window.removeEventListener('deviceorientation', compassFallbackHandler, true); compassFallbackHandler = null; }
 
     const btn = document.getElementById('compass-btn');
-    if (btn) btn.classList.remove('active');
+    if (btn) {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
+    }
     const ring = document.getElementById('compass-ring');
     if (ring) ring.style.transform = '';
     const degEl = document.getElementById('compass-degree');
@@ -546,7 +585,10 @@ function startCompass() {
     lastCalibHintTime = 0;
 
     const btn = document.getElementById('compass-btn');
-    if (btn) btn.classList.add('active');
+    if (btn) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+    }
 
     // Spuštění render loop
     rafId = requestAnimationFrame(compassRenderLoop);
@@ -559,10 +601,10 @@ function startCompass() {
     window.addEventListener('deviceorientation', compassFallbackHandler, true);
 
     // Timeout – žádná data
-    setTimeout(() => {
+    compassTimeout = setTimeout(() => {
         if (compassActive && currentHeading === null) {
-            alert('Telefon neposkytl kompasová data. Zkuste povolit senzory v nastavení prohlížeče.');
             stopCompass();
+            setStatus('position-status', 'Prohlížeč neposkytl údaje o směru k severu. Zkontrolujte přístup k senzorům.');
         }
     }, 3500);
 }
@@ -585,7 +627,7 @@ function setupCompass() {
     if (!isSecure) {
         btn.title = 'Kompas vyžaduje HTTPS';
         btn.style.opacity = '0.4';
-        btn.addEventListener('click', () => alert('Kompas funguje pouze přes HTTPS.'));
+        btn.addEventListener('click', () => setStatus('position-status', 'Kompas funguje přes HTTPS.'));
         return;
     }
 
@@ -593,18 +635,27 @@ function setupCompass() {
         if (compassActive) {
             stopCompass();
         } else {
-            // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
-            if (!manualCoordinates) {
-                ensureGpsActive();
+            if (typeof DeviceOrientationEvent === 'undefined') {
+                setStatus('position-status', 'Kompas není v tomto prohlížeči dostupný.');
+                return;
             }
             // iOS povolení
-            if (typeof DeviceOrientationEvent !== 'undefined' &&
-                typeof DeviceOrientationEvent.requestPermission === 'function') {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                btn.disabled = true;
                 try {
                     const p = await DeviceOrientationEvent.requestPermission();
-                    if (p !== 'granted') { alert('Povolte přístup ke kompasu v nastavení.'); return; }
-                } catch (e) { alert('Přístup ke kompasu selhal.'); return; }
+                    if (p !== 'granted') {
+                        setStatus('position-status', 'Přístup ke kompasu je zamítnutý.');
+                        return;
+                    }
+                } catch {
+                    setStatus('position-status', 'Přístup ke kompasu selhal.');
+                    return;
+                } finally {
+                    btn.disabled = false;
+                }
             }
+            setStatus('position-status', '');
             startCompass();
         }
     });
@@ -818,10 +869,7 @@ function setupSectors() {
         btn.setAttribute('aria-pressed', String(sectorMode));
         if (note) note.hidden = !sectorMode;
         if (sectorMode) {
-            // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
-            if (!manualCoordinates) {
-                ensureGpsActive();
-            }
+            closeBtsPopup();
         } else {
             clearSectors();
         }
@@ -832,6 +880,7 @@ const NEAREST_SOURCE = 'nearest-lines-source';
 const NEAREST_LAYER_LINE = 'nearest-lines-layer';
 const NEAREST_LAYER_LABEL = 'nearest-labels-layer';
 let nearestMarkers = [];
+let nearestActive = false;
 
 // Haversine vzdálenost v metrech
 function haversineDistance(lng1, lat1, lng2, lat2) {
@@ -855,17 +904,17 @@ function clearNearestLines() {
 function showNearestBts(userLng, userLat) {
     clearNearestLines();
 
-    if (!btsData || btsData.length === 0) return;
+    if (!visibleSites.length) return;
 
-    // Spočítej vzdálenosti ke všem BTS
-    const withDist = btsData.map(bts => ({
-        ...bts,
-        dist: haversineDistance(userLng, userLat, bts.coords[0], bts.coords[1])
-    }));
-
-    // Seřaď a vezmi 3 nejbližší
-    withDist.sort((a, b) => a.dist - b.dist);
-    const nearest = withDist.slice(0, 3);
+    const nearest = [];
+    for (const site of visibleSites) {
+        const dist = haversineDistance(userLng, userLat, ...site.coords);
+        if (nearest.length < 3 || dist < nearest[2].dist) {
+            nearest.push({ coords: site.coords, dist });
+            nearest.sort((a, b) => a.dist - b.dist);
+            if (nearest.length > 3) nearest.pop();
+        }
+    }
 
     const colors = ['#ef4444', '#22c55e', '#f59e0b'];
     const features = [];
@@ -904,7 +953,7 @@ function showNearestBts(userLng, userLat) {
             line-height: 1.3;
             text-align: center;
         `;
-        el.innerHTML = distText;
+        el.textContent = distText;
 
         const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
             .setLngLat([labelLng, labelLat])
@@ -931,404 +980,67 @@ function showNearestBts(userLng, userLat) {
     });
 }
 
-function setupNearest() {
-    const btn = document.getElementById('nearest-btn');
-    if (!btn) return;
-
-    let userPos = null;
-    let gettingPos = false;
-    let nearestActive = false;
-
-    // Získej aktuální GPS pozici
-    function getPosition() {
-        if (manualCoordinates) {
-            return Promise.resolve(manualCoordinates);
-        }
-        return new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => resolve([pos.coords.longitude, pos.coords.latitude]),
-                (err) => reject(err),
-                { enableHighAccuracy: true, timeout: 5000, maximumAge: 2000 }
-            );
-        });
-    }
-
-    async function showNearest() {
-        if (gettingPos) return;
-        gettingPos = true;
-        btn.classList.add('active');
-
-        try {
-            userPos = await getPosition();
-            showNearestBts(userPos[0], userPos[1]);
-            nearestActive = true;
-        } catch (e) {
-            console.log('GPS chyba:', e.message);
-            btn.classList.remove('active');
-        }
-        gettingPos = false;
-    }
-
-    function hideNearest() {
-        nearestActive = false;
-        btn.classList.remove('active');
+function refreshNearest() {
+    const position = manualCoordinates ?? gpsCoordinates;
+    if (nearestActive && position) {
+        showNearestBts(...position);
+    } else {
         clearNearestLines();
     }
+}
 
-    // Toggle: klik zapne, klik vypne
-    btn.addEventListener('click', () => {
-        if (nearestActive) {
-            hideNearest();
-        } else {
-            // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
-            if (!manualCoordinates) {
-                ensureGpsActive();
-            }
-            showNearest();
+function setNearestActive(active) {
+    nearestActive = active;
+    const button = document.getElementById('nearest-btn');
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+    refreshNearest();
+}
+
+function setupNearest() {
+    document.getElementById('nearest-btn').addEventListener('click', () => {
+        setNearestActive(!nearestActive);
+        if (!nearestActive || manualCoordinates || gpsCoordinates) return;
+        if (gpsFixPending) return;
+        if (!geolocateControl.trigger()) {
+            setNearestActive(false);
+            setStatus('position-status', 'GPS není k dispozici. Zadejte souřadnice do hledání.');
         }
     });
 }
 
-// Spuštění mapy
-window.onload = () => {
-    initMap();
-    setupMapSwitcher();
-    setupCompass();
-    setupSectors();
-    setupNearest();
-};
-
-// ====== POMOCNÉ FUNKCE PRO MANUÁLNÍ SOUŘADNICE ======
-
-function parseCoordinates(query) {
-    if (!query) return null;
-
-    // Normalizace desetinné čárky na tečku mezi číslicemi
-    let normalized = query.replace(/(\d),(\d)/g, '$1.$2');
-
-    // Extrakce všech čísel (včetně desetinných míst a znamének)
-    const numbers = normalized.match(/[-+]?[0-9]*\.?[0-9]+/g);
-    if (!numbers || numbers.length < 2) return null;
-
-    const parsedNums = numbers.map(Number);
-    let lat = null;
-    let lng = null;
-
-    if (parsedNums.length >= 6) {
-        // DMS: stupně, minuty, vteřiny (2x)
-        let val1 = parsedNums[0] + parsedNums[1] / 60 + parsedNums[2] / 3600;
-        let val2 = parsedNums[3] + parsedNums[4] / 60 + parsedNums[5] / 3600;
-        if (parsedNums[0] < 0) val1 = -Math.abs(val1);
-        if (parsedNums[3] < 0) val2 = -Math.abs(val2);
-        
-        // Detekce pořadí pro ČR/Střední Evropu
-        if (val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) {
-            lat = val1; lng = val2;
-        } else if (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22) {
-            lat = val2; lng = val1;
-        } else {
-            lat = val1; lng = val2;
-        }
-    } else if (parsedNums.length >= 4) {
-        // DDM: stupně, desetinné minuty (2x)
-        let val1 = parsedNums[0] + parsedNums[1] / 60;
-        let val2 = parsedNums[2] + parsedNums[3] / 60;
-        if (parsedNums[0] < 0) val1 = -Math.abs(val1);
-        if (parsedNums[2] < 0) val2 = -Math.abs(val2);
-
-        if (val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) {
-            lat = val1; lng = val2;
-        } else if (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22) {
-            lat = val2; lng = val1;
-        } else {
-            lat = val1; lng = val2;
-        }
-    } else if (parsedNums.length >= 2) {
-        // DD: desetinné stupně (2x)
-        let val1 = parsedNums[0];
-        let val2 = parsedNums[1];
-
-        if (val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) {
-            lat = val1; lng = val2;
-        } else if (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22) {
-            lat = val2; lng = val1;
-        } else {
-            lat = val1; lng = val2;
-        }
+window.addEventListener('load', () => {
+    try {
+        initMap();
+        setupMapSwitcher();
+        setupCompass();
+        setupSectors();
+        setupNearest();
+    } catch (error) {
+        console.error('Spuštění mapy selhalo', error);
+        setStatus('data-status', 'Mapu se nepodařilo spustit. Zkuste stránku obnovit.');
     }
-
-    if (lat === null || lng === null) return null;
-
-    // Určení světových stran podle textu
-    let halfLen = Math.floor(normalized.length / 2);
-    let part1 = normalized.substring(0, halfLen).toLowerCase();
-    let part2 = normalized.substring(halfLen).toLowerCase();
-
-    // Detekce případného přehození (pokud byl val2 určen jako lat)
-    let val1IsLat = true;
-    if (parsedNums.length >= 6) {
-        let val1 = parsedNums[0] + parsedNums[1] / 60 + parsedNums[2] / 3600;
-        let val2 = parsedNums[3] + parsedNums[4] / 60 + parsedNums[5] / 3600;
-        if (!(val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) && (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22)) {
-            val1IsLat = false;
-        }
-    } else if (parsedNums.length >= 4) {
-        let val1 = parsedNums[0] + parsedNums[1] / 60;
-        let val2 = parsedNums[2] + parsedNums[3] / 60;
-        if (!(val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) && (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22)) {
-            val1IsLat = false;
-        }
-    } else {
-        let val1 = parsedNums[0];
-        let val2 = parsedNums[1];
-        if (!(val1 >= 48 && val1 <= 52 && val2 >= 11 && val2 <= 22) && (val2 >= 48 && val2 <= 52 && val1 >= 11 && val1 <= 22)) {
-            val1IsLat = false;
-        }
-    }
-
-    let latPart = val1IsLat ? part1 : part2;
-    let lngPart = val1IsLat ? part2 : part1;
-
-    // Jih (J/S pro angličtinu/slovenštinu, čeština má J)
-    if (latPart.includes('j')) {
-        lat = -Math.abs(lat);
-    }
-
-    // Západ (Z/W) -> záporná délka
-    if (lngPart.includes('z') || lngPart.includes('w')) {
-        lng = -Math.abs(lng);
-    }
-
-    // Validace rozsahů
-    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        return null;
-    }
-
-    return { lat, lng };
-}
+}, { once: true });
 
 function setManualCoordinates(lng, lat) {
+    // Reset the control through its public lifecycle, including a GPS watch
+    // that MapLibre placed in passive mode after the user panned the map.
+    if (gpsRequested) {
+        const previous = geolocateControl;
+        geolocateControl = null;
+        map.removeControl(previous);
+        installGeolocation();
+    }
+    gpsCoordinates = null;
     manualCoordinates = [lng, lat];
-
-    if (userLocationMarker) {
-        userLocationMarker.remove();
-    }
-
-    // Vytvoření elementu pro custom GPS bod
-    const el = document.createElement('div');
-    el.className = 'manual-gps-dot';
-
-    userLocationMarker = new maplibregl.Marker({ element: el })
-        .setLngLat(manualCoordinates)
-        .addTo(map);
-
-    // Přesunout mapu a zoomovat
-    map.flyTo({
-        center: manualCoordinates,
-        zoom: 16,
-        essential: true
-    });
-
-    // Pokud je aktivní sledování GPS, vypneme ho, abychom zamezili konfliktům
-    if (gpsTrackingActive && geolocateControl) {
-        geolocateControl.trigger();
-    }
-}
-
-// ====== UNIVERZÁLNÍ VYHLEDÁVÁNÍ (Adresa, DEC, HEX) ======
-function setupSearch() {
-
-    const input = document.getElementById('search-input');
-    const results = document.getElementById('search-results');
-    const clearBtn = document.getElementById('search-clear');
-    if (!input || !results) return;
-
-    let searchIndex = [];
-
-    // Příprava vyhledávacího indexu pro bleskové vyhledávání
-    function buildIndex() {
-        console.log("Buduji vyhledávací index...");
-        searchIndex = btsData.map(bts => {
-            const ids = bts.cells.map(c => {
-                const dec = c.full_cid || (c.ci.includes(':') ? null : c.ci);
-                const hex = dec ? parseInt(dec).toString(16).toUpperCase() : '';
-                return { dec, hex };
-            });
-            
-            return {
-                bts: bts,
-                searchText: bts.name.toLowerCase(),
-                ids: ids
-            };
-        });
-    }
-
-    buildIndex();
-
-    input.addEventListener('input', async (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        const rawQuery = e.target.value.trim();
-        
-        // Tajný "cheat kód" pro zobrazení počítadla návštěv
-        if (query === 'adminstats') {
-            try {
-                const res = await fetch('https://api.counterapi.dev/v1/sydloch-btsmapa/visits');
-                const data = await res.json();
-                alert(`Celkový počet načtení mapy: ${data.count}`);
-                input.value = '';
-                results.style.display = 'none';
-                clearBtn.style.display = 'none';
-            } catch (err) {
-                alert('Zatím nejsou žádná data nebo došlo k chybě.');
-            }
-            return;
-        }
-
-        // Zkusíme nejprve parsovat jako souřadnice
-        const parsedCoords = parseCoordinates(rawQuery);
-
-        if (query.length < 2 && !parsedCoords) {
-            results.style.display = 'none';
-            clearBtn.style.display = 'none';
-            return;
-        }
-
-        clearBtn.style.display = 'block';
-        const filtered = [];
-
-        // Vyhledáváme v indexu pouze pokud má dotaz aspoň 2 znaky
-        if (query.length >= 2) {
-            for (const item of searchIndex) {
-                let matchType = null;
-                let matchValue = '';
-
-                // 1. Hledání v názvu
-                if (item.searchText.includes(query)) {
-                    matchType = 'name';
-                } 
-                // 2. Hledání v ID (DEC nebo HEX)
-                else {
-                    const idMatch = item.ids.find(id => 
-                        (id.dec && id.dec.toString().includes(query)) || 
-                        (id.hex && id.hex.toLowerCase().includes(query))
-                    );
-                    if (idMatch) {
-                        matchType = 'id';
-                        matchValue = idMatch.dec;
-                    }
-                }
-
-                if (matchType) {
-                    filtered.push({ ...item, matchType, matchValue });
-                    if (filtered.length >= 10) break; // Limit výsledků
-                }
-            }
-        }
-
-        renderResults(filtered, query, parsedCoords);
-    });
-
-    function renderResults(items, query, parsedCoords) {
-        let html = '';
-
-        if (parsedCoords) {
-            html += `
-                <div class="search-item coordinate-item" data-lat="${parsedCoords.lat}" data-lng="${parsedCoords.lng}">
-                    <span class="name" style="color:#2563eb;font-weight:bold;display:flex;align-items:center;gap:4px;">📍 Přejít na souřadnice</span>
-                    <span class="details" style="display:block;font-size:11px;color:#4b5563;margin-top:2px;">${parsedCoords.lat.toFixed(5)}, ${parsedCoords.lng.toFixed(5)}</span>
-                </div>
-            `;
-        }
-
-        if (items.length === 0) {
-            if (!parsedCoords) {
-                html += '<div class="search-item">Nic nenalezeno</div>';
-            }
-        } else {
-            html += items.map(item => {
-                const bts = item.bts;
-                const name = bts.name.replace(new RegExp(query, 'gi'), m => `<b>${m}</b>`);
-                const decId = item.matchValue || (bts.cells[0].full_cid || bts.cells[0].ci);
-                const hexId = parseInt(decId).toString(16).toUpperCase();
-                
-                return `
-                    <div class="search-item" data-id="${bts.id}">
-                        <span class="name">${name}</span>
-                        <span class="details">ID: ${decId} | HEX: ${hexId}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-        results.innerHTML = html;
-        results.style.display = 'block';
-
-        // Kliknutí na výsledek
-        document.querySelectorAll('.search-item').forEach(el => {
-            el.addEventListener('click', () => {
-                if (el.classList.contains('coordinate-item')) {
-                    const lat = parseFloat(el.dataset.lat);
-                    const lng = parseFloat(el.dataset.lng);
-                    setManualCoordinates(lng, lat);
-                    results.style.display = 'none';
-                    input.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-                } else {
-                    const btsId = el.dataset.id;
-                    const targetBts = btsData.find(b => b.id === btsId);
-                    if (targetBts) {
-                        goToBts(targetBts);
-                        results.style.display = 'none';
-                        input.value = targetBts.name;
-                    }
-                }
-            });
-        });
-    }
-
-
-    function goToBts(bts) {
-        map.flyTo({
-            center: bts.coords,
-            zoom: 16,
-            essential: true
-        });
-
-        // Simulace kliknutí pro otevření popupu
-        setTimeout(() => {
-            const point = map.project(bts.coords);
-            const features = map.queryRenderedFeatures(point, { layers: ['layer-bts-points', 'layer-bts-touch'] });
-            
-            // Pokud není feature v dohledu (např. jiná vrstva), vytvoříme popup ručně
-            if (features.length > 0) {
-                map.fire('click', { lngLat: { lng: bts.coords[0], lat: bts.coords[1] }, point: point, features: features });
-            } else {
-                // Fallback: Vyvoláme handleBtsClick přímo s mock eventem
-                // Musíme najít mock feature
-                const mockFeature = {
-                    geometry: { type: 'Point', coordinates: bts.coords },
-                    properties: {
-                        id: bts.id,
-                        name: bts.name,
-                        cells: JSON.stringify(bts.cells)
-                    }
-                };
-                // Tato funkce není globální, ale initMap ji má v sobě. 
-                // Pro jednoduchost: vyvoláme klik na mapu na daných souřadnicích.
-                map.fire('click', { lngLat: { lng: bts.coords[0], lat: bts.coords[1] }, point: point });
-            }
-        }, 600);
-    }
-
-    clearBtn.addEventListener('click', () => {
-        input.value = '';
-        results.style.display = 'none';
-        clearBtn.style.display = 'none';
-        input.focus();
-    });
-
-    // Zavření výsledků při kliknutí mimo
-    document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !results.contains(e.target)) {
-            results.style.display = 'none';
-        }
-    });
+    userLocationMarker?.remove();
+    const element = document.createElement('div');
+    element.className = 'manual-gps-dot';
+    element.title = 'Ruční poloha';
+    userLocationMarker = new maplibregl.Marker({ element }).setLngLat(manualCoordinates).addTo(map);
+    closeBtsPopup();
+    clearSectors();
+    map.flyTo({ center: manualCoordinates, zoom: 16 });
+    setStatus('position-status', 'Používám ručně zadanou polohu.');
+    refreshNearest();
 }

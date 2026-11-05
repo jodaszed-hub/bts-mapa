@@ -2,103 +2,119 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>O2 BTS Mapa</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>BTSmapa · O2 a T-Mobile</title>
     <!-- MapLibre GL JS -->
     <script src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/main.css?v=2">
 </head>
-<body class="bg-gray-100 font-sans antialiased text-gray-900">
+<body>
 
-    <!-- Mapa kontejner -->
-    <div id="map" class="absolute inset-0 w-full h-full"></div>
+    <main id="map" aria-label="Mapa základnových stanic"></main>
 
-    <!-- Vyhledávání -->
-    <div id="search-container" class="ui-overlay">
-        <div class="search-input-wrapper">
-            <input type="text" id="search-input" placeholder="Hledat adresu, ID nebo HEX..." autocomplete="off">
-            <div id="search-clear" class="search-clear">✕</div>
+    <div class="map-tools ui-overlay" role="region" aria-label="Ovládání mapy">
+        <div id="operator-switcher" role="group" aria-label="Operátor">
+            <button type="button" class="operator-btn active" data-operator="o2" aria-pressed="true">O2</button>
+            <button type="button" class="operator-btn" data-operator="tmobile" aria-pressed="false">T-Mobile</button>
         </div>
-        <div id="search-results" class="search-results-list"></div>
+
+        <button type="button" id="compass-btn" class="compass-widget" title="Orientace dle kompasu" aria-label="Orientace dle kompasu" aria-pressed="false">
+            <svg id="compass-ring" viewBox="0 0 100 100" class="compass-ring" aria-hidden="true">
+                <!-- Vnější kroužek -->
+                <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <!-- Značky světových stran -->
+                <text x="50" y="10" text-anchor="middle" font-size="9" font-weight="700" fill="#ef4444">N</text>
+                <text x="92" y="53" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.8)">E</text>
+                <text x="50" y="96" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.8)">S</text>
+                <text x="8" y="53" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.8)">W</text>
+                <!-- Rysky po 30° -->
+                <line x1="50" y1="14" x2="50" y2="19" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+                <line x1="68" y1="18" x2="65.5" y2="22.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="82" y1="32" x2="77.5" y2="34.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="86" y1="50" x2="81" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+                <line x1="82" y1="68" x2="77.5" y2="65.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="68" y1="82" x2="65.5" y2="77.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="50" y1="86" x2="50" y2="81" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+                <line x1="32" y1="82" x2="34.5" y2="77.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="18" y1="68" x2="22.5" y2="65.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="14" y1="50" x2="19" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+                <line x1="18" y1="32" x2="22.5" y2="34.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                <line x1="32" y1="18" x2="34.5" y2="22.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            </svg>
+            <!-- Ukazatel směru nahoru (fixní trojúhelník nahoře) -->
+            <span class="compass-pointer" aria-hidden="true">▲</span>
+            <!-- Azimut číslo -->
+            <span id="compass-degree" class="compass-degree" aria-hidden="true">---</span>
+        </button>
+
+        <div id="map-switcher" role="group" aria-label="Mapový podklad">
+            <button type="button" class="map-btn active" data-style="basic" title="Základní mapa" aria-label="Základní mapa" aria-pressed="true">🗺️</button>
+            <button type="button" class="map-btn" data-style="outdoor" title="Turistická mapa" aria-label="Turistická mapa" aria-pressed="false">🥾</button>
+            <button type="button" class="map-btn" data-style="aerial" title="Satelitní mapa" aria-label="Satelitní mapa" aria-pressed="false">🛰️</button>
+            <button type="button" class="map-btn" data-style="aerial-labels" title="Satelitní mapa s popisky" aria-label="Satelitní mapa s popisky" aria-pressed="false">🏷️</button>
+        </div>
+
+        <div class="map-actions" role="group" aria-label="Nástroje BTS">
+            <button type="button" id="sector-btn" class="sector-btn" title="Schéma sektorů BTS" aria-label="Schéma sektorů BTS" aria-controls="sector-note" aria-pressed="false">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <path d="M12 10 L8 3 A10 10 0 0 1 16 3 Z" fill="#ef4444" opacity="0.6"/>
+                    <path d="M13.7 11 L20 7 A10 10 0 0 1 20 17 Z" fill="#22c55e" opacity="0.6"/>
+                    <path d="M10.3 13 L4 17 A10 10 0 0 1 4 7 Z" fill="#3b82f6" opacity="0.6"/>
+                </svg>
+            </button>
+
+            <button type="button" id="nearest-btn" class="nearest-btn" title="Zobrazit nebo skrýt 3 nejbližší BTS" aria-label="Tři nejbližší BTS" aria-pressed="false">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3" fill="#3b82f6" stroke="#3b82f6"/>
+                    <line x1="12" y1="12" x2="4" y2="4" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    <line x1="12" y1="12" x2="20" y2="6" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    <line x1="12" y1="12" x2="18" y2="20" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    <circle cx="4" cy="4" r="1.5" fill="#ef4444"/>
+                    <circle cx="20" cy="6" r="1.5" fill="#22c55e"/>
+                    <circle cx="18" cy="20" r="1.5" fill="#f59e0b"/>
+                </svg>
+            </button>
+        </div>
+
+        <div id="search-container" role="search">
+            <div class="search-input-wrapper">
+                <label class="visually-hidden" for="search-input">Hledat BTS nebo souřadnice</label>
+                <input type="text" id="search-input" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false" placeholder="Adresa, ID, HEX nebo GPS" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button type="button" id="search-clear" class="search-clear" title="Vymazat hledání" aria-label="Vymazat hledání" hidden>✕</button>
+            </div>
+            <div id="search-results" class="search-results-list" role="listbox" aria-label="Výsledky hledání" hidden></div>
+            <p id="search-status" class="search-message" role="status" aria-live="polite" hidden></p>
+        </div>
+
+        <div id="filter-controls" role="group" aria-label="Filtry BTS">
+            <label class="filter-control" for="technology-filter">
+                <span>Technologie</span>
+                <select id="technology-filter">
+                    <option value="all">Všechny</option>
+                    <option value="gsm">2G / GSM</option>
+                    <option value="lte">4G / LTE</option>
+                    <option value="nr">5G / NR</option>
+                </select>
+            </label>
+            <label class="filter-control" for="band-filter">
+                <span>Pásmo</span>
+                <select id="band-filter">
+                    <option value="all">Všechna</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="map-status">
+            <p id="data-status" role="status">Načítám data BTS…</p>
+            <p id="position-status" role="status"></p>
+        </div>
     </div>
 
-    <!-- Přepínač operátora -->
-    <div id="operator-switcher" class="ui-overlay" style="position: absolute; top: 12px; left: 10px; display: flex; gap: 4px; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 8px; padding: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);">
-        <button class="operator-btn active" data-operator="o2" style="padding: 4px 8px; border: none; background: #3b82f6; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: all 0.2s;">O2</button>
-        <button class="operator-btn" data-operator="tmobile" style="padding: 4px 8px; border: none; background: transparent; color: #4b5563; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: all 0.2s;">T-Mobile</button>
-    </div>
-
-    <!-- Přepínač mapových vrstev -->
-    <div id="map-switcher" class="ui-overlay">
-        <button class="map-btn active" data-style="basic" title="Základní">🗺️</button>
-        <button class="map-btn" data-style="outdoor" title="Turistická">🥾</button>
-        <button class="map-btn" data-style="aerial" title="Satelit">🛰️</button>
-        <button class="map-btn" data-style="aerial-labels" title="Satelit + popisky">🏷️</button>
-    </div>
-
-    <!-- Mini kompas s azimuthem -->
-    <div id="compass-btn" class="ui-overlay compass-widget" title="Orientace dle kompasu">
-        <svg id="compass-ring" viewBox="0 0 100 100" class="compass-ring">
-            <!-- Vnější kroužek -->
-            <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-            <!-- Značky světových stran -->
-            <text x="50" y="10" text-anchor="middle" font-size="9" font-weight="700" fill="#ef4444">N</text>
-            <text x="92" y="53" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.8)">E</text>
-            <text x="50" y="96" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.8)">S</text>
-            <text x="8" y="53" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.8)">W</text>
-            <!-- Rysky po 30° -->
-            <line x1="50" y1="14" x2="50" y2="19" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
-            <line x1="68" y1="18" x2="65.5" y2="22.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="82" y1="32" x2="77.5" y2="34.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="86" y1="50" x2="81" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
-            <line x1="82" y1="68" x2="77.5" y2="65.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="68" y1="82" x2="65.5" y2="77.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="50" y1="86" x2="50" y2="81" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
-            <line x1="32" y1="82" x2="34.5" y2="77.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="18" y1="68" x2="22.5" y2="65.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="14" y1="50" x2="19" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
-            <line x1="18" y1="32" x2="22.5" y2="34.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-            <line x1="32" y1="18" x2="34.5" y2="22.5" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-        </svg>
-        <!-- Ukazatel směru nahoru (fixní trojúhelník nahoře) -->
-        <div class="compass-pointer">▲</div>
-        <!-- Azimut číslo -->
-        <div id="compass-degree" class="compass-degree">---</div>
-    </div>
-
-    <!-- Tlačítko vizualizace sektorů -->
-    <button id="sector-btn" class="ui-overlay sector-btn" title="Zobrazit schéma sektorů BTS" aria-pressed="false">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="2" fill="currentColor"/>
-            <path d="M12 10 L8 3 A10 10 0 0 1 16 3 Z" fill="#ef4444" opacity="0.6"/>
-            <path d="M13.7 11 L20 7 A10 10 0 0 1 20 17 Z" fill="#22c55e" opacity="0.6"/>
-            <path d="M10.3 13 L4 17 A10 10 0 0 1 4 7 Z" fill="#3b82f6" opacity="0.6"/>
-        </svg>
-    </button>
     <p id="sector-note" class="ui-overlay sector-note" role="status" hidden>
         Schéma sektorů. Skutečný azimut antén a dosah signálu neznáme.
     </p>
-
-    <!-- Tlačítko nejbližších BTS (drž = ukaž) -->
-    <button id="nearest-btn" class="ui-overlay nearest-btn" title="Drž pro 3 nejbližší BTS">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3" fill="#3b82f6" stroke="#3b82f6"/>
-            <line x1="12" y1="12" x2="4" y2="4" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2"/>
-            <line x1="12" y1="12" x2="20" y2="6" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="2 2"/>
-            <line x1="12" y1="12" x2="18" y2="20" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2 2"/>
-            <circle cx="4" cy="4" r="1.5" fill="#ef4444"/>
-            <circle cx="20" cy="6" r="1.5" fill="#22c55e"/>
-            <circle cx="18" cy="20" r="1.5" fill="#f59e0b"/>
-        </svg>
-    </button>
-
-    <!-- Skripty logiky -->
-    <script src="js/storage-logic.js"></script>
-    <script>
-        document.write('<script src="js/map-logic.js?v=' + new Date().getTime() + '"><\/script>');
-    </script>
+    <script type="module" src="js/map-logic.js?v=2"></script>
 </body>
 </html>
