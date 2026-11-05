@@ -1,0 +1,3310 @@
+{
+  "source": "GSMweb.cz",
+  "operators": {
+    "o2": {
+      "before_sites": 8169,
+      "after_sites": 8257,
+      "before_cells": 110478,
+      "after_cells": 119108,
+      "source_sites": 8231,
+      "source_cells": 118502,
+      "added_sites": [
+        {
+          "id": "O2-GSMWEB-8170",
+          "name": "Brno - Slatina, Strážnická 968/16, panelák",
+          "coords": [
+            16.683483333333,
+            49.179105555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8171",
+          "name": "Praha 9 - Letňany, Vesecká 686, hala Activa, indoor",
+          "coords": [
+            14.513447222222,
+            50.142655555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8172",
+          "name": "Kosmonosy, Lípy 251, Psychiatrická nemocnice, pavilon B (nové)",
+          "coords": [
+            14.927991666667,
+            50.444025
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8173",
+          "name": "Krpy, kotvený stožárek v obci",
+          "coords": [
+            14.688444444444,
+            50.329916666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8174",
+          "name": "Čáslav, betonový stožár v areálu vojenského letiště",
+          "coords": [
+            15.382536111111,
+            49.949041666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8175",
+          "name": "Vojkovice, příhradový stožár Z od obce, +TMO, +VDF",
+          "coords": [
+            14.365277777778,
+            50.294444444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8176",
+          "name": "Hradečno, betonový stožár SZ od obce, +TMO",
+          "coords": [
+            13.985102777778,
+            50.189877777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8177",
+          "name": "Český Šternberk, mobilní BTS na skále nad jezem, +TMO (nové)",
+          "coords": [
+            14.932308333333,
+            49.815152777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8178",
+          "name": "Litovel, Novosady 547/3, panelák, +TMO",
+          "coords": [
+            17.078766666667,
+            49.708061111111
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8179",
+          "name": "Jablonec nad Nisou, Vítězslava Nezvala 4046/9, bytový dům, +TMO",
+          "coords": [
+            15.190925,
+            50.732238888889
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8180",
+          "name": "Louny, Husova, komín u nádraží, +TMO",
+          "coords": [
+            13.816952777778,
+            50.361041666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8181",
+          "name": "Lažany, příhradový stožár na okraji obce, +TMO",
+          "coords": [
+            13.509511111111,
+            50.400869444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8182",
+          "name": "Hluboká, příhradový stožár S od obce, +TMO",
+          "coords": [
+            16.070425,
+            49.849744444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8183",
+          "name": "Bělá, příhradový stožár u silnice na Tasice, +TMO",
+          "coords": [
+            15.243744444444,
+            49.756716666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8184",
+          "name": "Přívrat 11, obecní úřad (nové)",
+          "coords": [
+            16.3972,
+            49.924630555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8185",
+          "name": "Ostrava - Poruba, 17. listopadu 1790/5, Fakultní nemocnice, budova N, +TMO, +VDF (nové)",
+          "coords": [
+            18.155102777778,
+            49.827275
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8186",
+          "name": "Fulnek, Česká, mobilní BTS, +TMO",
+          "coords": [
+            17.90025,
+            49.715619444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8187",
+          "name": "Linhartovy, příhradový stožár v areálu pily",
+          "coords": [
+            17.619822222222,
+            50.136094444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8188",
+          "name": "Bruntál, Opavská 2075/45a, kotvený stožárek v areálu Alfa Plastik, +TMO (nové)",
+          "coords": [
+            17.477641666667,
+            49.996511111111
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8189",
+          "name": "Běštín, betonový stožár na S okraji obce, +TMO",
+          "coords": [
+            14.015411111111,
+            49.810377777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8190",
+          "name": "Konice - Čunín, příhradový stožár, +TMO",
+          "coords": [
+            16.907475,
+            49.565075
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8191",
+          "name": "Žabčice, příhradový stožár na J okraji obce u hřiště, +TMO, +VDF",
+          "coords": [
+            16.5998,
+            49.007361111111
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8192",
+          "name": "Ladná, příhradový stožár mezi obcí a D2, +TMO",
+          "coords": [
+            16.888694444444,
+            48.809955555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8193",
+          "name": "Vojkovice, Sportovní, mobilní BTS u fotbalového hřiště, +TMO",
+          "coords": [
+            16.602611111111,
+            49.051508333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8194",
+          "name": "Znojmo, náměstí Republiky 585/1, věž okresního soudu, +TMO",
+          "coords": [
+            16.052127777778,
+            48.852430555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8195",
+          "name": "Veverská Bítýška, Tejny, kotvený stožárek v areálu Hartmann-Rico",
+          "coords": [
+            16.432661111111,
+            49.278452777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8196",
+          "name": "Příkazy, příhradový stožár u nádraží, +TMO",
+          "coords": [
+            17.141372222222,
+            49.640266666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8197",
+          "name": "Velká Bíteš - Jáchymov, příhradový stožár u D1, +TMO",
+          "coords": [
+            16.163383333333,
+            49.299727777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8198",
+          "name": "Otín, příhradový stožár V od obce, +TMO",
+          "coords": [
+            15.913452777778,
+            49.361177777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8199",
+          "name": "Pavlínov, V Horách 585 m, příhradový stožár V od obce, +TMO",
+          "coords": [
+            15.890319444444,
+            49.346344444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8200",
+          "name": "Němčičky, Březovec 284 m, příhradový stožár JV od obce, +TMO",
+          "coords": [
+            16.098125,
+            48.938680555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8201",
+          "name": "Moravec, příhradový stožár na J okraji obce, +TMO",
+          "coords": [
+            16.141544444444,
+            49.434513888889
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8202",
+          "name": "Svojkovice, kotvený stožár u I/38, +TMO",
+          "coords": [
+            15.642211111111,
+            49.168252777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8203",
+          "name": "Hlávkov, příhradový stožár u kravína JV od obce, +TMO, +VDF (nové)",
+          "coords": [
+            15.493477777778,
+            49.433258333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8204",
+          "name": "Dlouhá Ves, Na Platoři 687 m, příhradový stožár V nad obcí, +VDF (nové)",
+          "coords": [
+            13.526933333333,
+            49.196941666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8205",
+          "name": "Přehýšov 251, areál Dioss, mobilní BTS za halou",
+          "coords": [
+            13.164175,
+            49.708558333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8206",
+          "name": "Kladenské Rovné, příhradový stožár v lese SV od obce, +TMO",
+          "coords": [
+            14.2274,
+            48.796091666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8207",
+          "name": "Myslinka 117, betonový stožár u haly RSF Elektronik (nové)",
+          "coords": [
+            13.222308333333,
+            49.746288888889
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8208",
+          "name": "Kralovice, nám. Osvobození 32, střední škola",
+          "coords": [
+            13.486777777778,
+            49.980591666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8209",
+          "name": "Nová Paka - Heřmanice, tovární hala",
+          "coords": [
+            15.522863888889,
+            50.480227777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8210",
+          "name": "Nižbor, Konvalinková 335, bytový dům",
+          "coords": [
+            14.000747222222,
+            50.009616666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8211",
+          "name": "Vyšné, příhradový stožár v lese za železniční zastávkou",
+          "coords": [
+            14.864402777778,
+            48.797280555556
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8212",
+          "name": "Dobříkov, stožárek na kraji lesa V nad obcí",
+          "coords": [
+            13.085388888889,
+            49.379819444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8213",
+          "name": "Lipnice, příhradový stožár (nové)",
+          "coords": [
+            13.607791666667,
+            49.631283333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8214",
+          "name": "Beroun, Lidická 785, panelák (nové)",
+          "coords": [
+            14.074422222222,
+            49.979333333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8215",
+          "name": "Boršíkov, příhradový stožár na Z okraji obce (zrušeno)",
+          "coords": [
+            14.632588888889,
+            48.818133333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8216",
+          "name": "Mohelnice, betonový stožár S od obce (nové)",
+          "coords": [
+            13.64245,
+            49.488569444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8217",
+          "name": "Heřmanov, příhradový stožár nad obcí (nové)",
+          "coords": [
+            14.283441666667,
+            50.724786111111
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8218",
+          "name": "Radešov, příhradový stožárek (nové)",
+          "coords": [
+            13.506861111111,
+            49.155572222222
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8219",
+          "name": "Praha 1 - Staré Město, Platnéřská 88/9, Potrefená husa, indoor pikocela (nové)",
+          "coords": [
+            14.415741666667,
+            50.0873
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8220",
+          "name": "Praha 6 - Řepy, Reinerova 700/8, DP Garáže Řepy, indoor pikocela {1404} (nové)",
+          "coords": [
+            14.305561111111,
+            50.074458333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8221",
+          "name": "Praha 1 - Nové Město, V Celnici 1034/6, Cukrář Skála, indoor pikocela {1404}",
+          "coords": [
+            14.430833333333,
+            50.087902777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8222",
+          "name": "Vejprnice, Tyršova 686, hala Ptáček, indoor pikocela {1404}",
+          "coords": [
+            13.284375,
+            49.720772222222
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8223",
+          "name": "Zlín - Malenovice, Průmyslová 1395, Cross, indoor pikocela {1379} (nové)",
+          "coords": [
+            17.585733333333,
+            49.21035
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8224",
+          "name": "Mladá Boleslav, tř. Václava Klementa 1459, Bondy centrum, Datart, indoor pikocela {1404}",
+          "coords": [
+            14.915344444444,
+            50.420208333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8225",
+          "name": "Staré Hradiště, U Pošty 26, RCD, pikocela {1404}",
+          "coords": [
+            15.781247222222,
+            50.0653
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8226",
+          "name": "Březno 121, Tank Ono, indoor pikocela {1404} (nové)",
+          "coords": [
+            13.727833333333,
+            50.351813888889
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8227",
+          "name": "Špindlerův Mlýn, bufet restaurace Na Pláni, pikocela {1404}",
+          "coords": [
+            15.616522222222,
+            50.707725
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8228",
+          "name": "Kunratice 24, rodinný dům, indoor pikocela {1404} (nové)",
+          "coords": [
+            14.416041666667,
+            50.818533333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8229",
+          "name": "Frymburk, zpevněný betonový stožár na hřebeni JV od obce",
+          "coords": [
+            14.199033333333,
+            48.654494444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8230",
+          "name": "Horní Beřkovice, Podřipská 15, ZŠ",
+          "coords": [
+            14.343108333333,
+            50.360338888889
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8231",
+          "name": "Křtiny 68, Arboretum, pikocela",
+          "coords": [
+            16.744247222222,
+            49.318477777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8232",
+          "name": "Brno - Židenice, Svatoplukova, budova v bývalém armádním areálu",
+          "coords": [
+            16.643466666667,
+            49.206877777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8233",
+          "name": "Praha 6 - Dejvice, Vítězné náměstí 1145/8, Victoria Palace, indoor v prodejně O2 (nové)",
+          "coords": [
+            14.395597222222,
+            50.101752777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8234",
+          "name": "Louny, Komenského náměstí 2771, Billa, indoor pikocela (nové)",
+          "coords": [
+            13.802883333333,
+            50.356244444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8235",
+          "name": "Ondřejov, Guthova 266, panelák",
+          "coords": [
+            14.782663888889,
+            49.905836111111
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8236",
+          "name": "Kroměříž, 17. listopadu 3980/4, panelák",
+          "coords": [
+            17.389722222222,
+            49.289216666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8237",
+          "name": "Moravské Budějovice, silo u nádraží",
+          "coords": [
+            15.809722222222,
+            49.058972222222
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8238",
+          "name": "Velké Němčice - Zeleňák, příhradový stožár u D2",
+          "coords": [
+            16.68475,
+            49.01445
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8239",
+          "name": "Ostrava - Poruba, 17. listopadu 2172/15, VŠB-TU, nová budova Fakulty ekonomické",
+          "coords": [
+            18.161908333333,
+            49.833161111111
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8240",
+          "name": "Jámy, příhradový stožár na kopci Horka (nové)",
+          "coords": [
+            15.998125,
+            49.542888888889
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8241",
+          "name": "Blansko - Lažánky 199, kulturní dům",
+          "coords": [
+            16.708697222222,
+            49.350841666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8242",
+          "name": "Rychvald, Revoluční, příhradový stožár",
+          "coords": [
+            18.372111111111,
+            49.846083333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8243",
+          "name": "Letovice - Slatinka, příhradový stožár nad I/43",
+          "coords": [
+            16.562138888889,
+            49.572083333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8244",
+          "name": "Lhota, příhradový stožár u hřbitova (nové)",
+          "coords": [
+            17.605794444444,
+            49.172347222222
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8245",
+          "name": "Rousínov - Kroužek, příhradový stožár nad D1",
+          "coords": [
+            16.900472222222,
+            49.194769444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8246",
+          "name": "Napajedla, Pod Zahrádkami, příhradový stožár",
+          "coords": [
+            17.508655555556,
+            49.165472222222
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8247",
+          "name": "Úvaly, Jeronýmova, příhradový stožár za areálem skladů",
+          "coords": [
+            14.718686111111,
+            50.060566666667
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8248",
+          "name": "Slatina 54, obecní úřad",
+          "coords": [
+            16.607247222222,
+            49.628197222222
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8249",
+          "name": "Hrabůvka, D1/306km, příhradový stožár u kamenolomu (nové)",
+          "coords": [
+            17.700011111111,
+            49.574525
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8250",
+          "name": "Pouzdřany, U Mlýna, příhradový stožár u trati",
+          "coords": [
+            16.623630555556,
+            48.947269444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8251",
+          "name": "Čaková, příhradový stožár JZ nad obcí",
+          "coords": [
+            17.542747222222,
+            50.049158333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8252",
+          "name": "Švihov, mobilní BTS pro Hrady.cz",
+          "coords": [
+            13.292222222222,
+            49.471833333333
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8253",
+          "name": "Ústí nad Labem - Bukov, Na Kohoutě 333/4, panelák",
+          "coords": [
+            13.9987,
+            50.686227777778
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8254",
+          "name": "Děčín - Boletice nad Labem, Čsl. partyzánů 356, panelák",
+          "coords": [
+            14.192622222222,
+            50.740944444444
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8255",
+          "name": "Varnsdorf, Křižíkova 2741, panelák (nové)",
+          "coords": [
+            14.624241666667,
+            50.906175
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8256",
+          "name": "Lovosice, Osvoboditelů 942/51, panelák",
+          "coords": [
+            14.047755555556,
+            50.51595
+          ]
+        },
+        {
+          "id": "O2-GSMWEB-8257",
+          "name": "Chomutov, Březenecká 4689, panelák",
+          "coords": [
+            13.412277777778,
+            50.474138888889
+          ]
+        }
+      ],
+      "corrected_coordinates": [
+        {
+          "id": "O2-GSMWEB-2719",
+          "name": "Písek, Komenského 89/20, gymnázium, +TMO",
+          "old_coords": [
+            14.15125,
+            49.306405555556
+          ],
+          "coords": [
+            14.151291666667,
+            49.306541666667
+          ],
+          "distance_m": 15.43
+        },
+        {
+          "id": "O2-GSMWEB-7646",
+          "name": "Orlová - Lazy, mobilní BTS v areálu bývalého dolu Lazy, +TMO",
+          "old_coords": [
+            18.446972222222,
+            49.827975
+          ],
+          "coords": [
+            18.441583333333,
+            49.829616666667
+          ],
+          "distance_m": 427.48
+        },
+        {
+          "id": "O2-GSMWEB-7647",
+          "name": "Doubrava, Doubrava 282 m, příhradový stožár, +VDF",
+          "old_coords": [
+            18.478852777778,
+            49.865833333333
+          ],
+          "coords": [
+            18.478669444444,
+            49.866
+          ],
+          "distance_m": 22.72
+        }
+      ],
+      "retained_unverified": [
+        {
+          "id": "O2-GSMWEB-134",
+          "name": "Praha 1 - Malá Strana, Malostranské nám. 2/25, falešný komín",
+          "coords": [
+            14.403388888889,
+            50.088419444444
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-605",
+          "name": "Praha 5 - Motol, V Úvalu 84/1, Fakultní nemocnice Motol, +TMO, +VDF",
+          "coords": [
+            14.339738888889,
+            50.073183333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-1294",
+          "name": "Všechlapy, tubusový stožár nad D1, +TMO",
+          "coords": [
+            14.928083333333,
+            49.7794
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-1327",
+          "name": "Částrovice, betonový stožár v lese S od obce, +TMO",
+          "coords": [
+            14.929197222222,
+            49.653694444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-1383",
+          "name": "Kublov, vodárna SZ nad obcí",
+          "coords": [
+            13.867816666667,
+            49.948763888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-1398",
+          "name": "Loděnice, Tovární 63, GZ Media, +TMO",
+          "coords": [
+            14.156152777778,
+            49.998588888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-1421",
+          "name": "Rovina, příhradový stožár u hospůdky Na Návsi, +TMO",
+          "coords": [
+            14.227944444444,
+            49.923194444444
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-1455",
+          "name": "Trněný Újezd, kotvený příhradový stožárek u stožáru VVN (zrušeno)",
+          "coords": [
+            14.226283333333,
+            49.975219444444
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "O2-GSMWEB-1522",
+          "name": "Braškov, Kožová hora 456 m, příhradová věž, +TMO",
+          "coords": [
+            14.103330555556,
+            50.114519444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-1598",
+          "name": "Kolín, Veltrubská 1014, bytový dům, +TMO (zrušeno)",
+          "coords": [
+            15.202738888889,
+            50.034544444444
+          ],
+          "cells_without_current_gps": 18
+        },
+        {
+          "id": "O2-GSMWEB-1642",
+          "name": "Čáslav, vojenské letiště",
+          "coords": [
+            15.383216666667,
+            49.947444444444
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-1768",
+          "name": "Mladá Boleslav - Čejetice, příhradový stožár, +TMO, +VDF (nové)",
+          "coords": [
+            14.891313888889,
+            50.408572222222
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-1787",
+          "name": "Mladá Boleslav, tř. Václava Klementa 147, Klaudiánova nemocnice, interna, +TMO",
+          "coords": [
+            14.909636111111,
+            50.418252777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-1792",
+          "name": "Zelená, komín bývalé ruské výtopny, +TMO",
+          "coords": [
+            14.914116666667,
+            50.309830555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-1825",
+          "name": "Kosořice, hydroglobus, +TMO, +VDF",
+          "coords": [
+            14.955913888889,
+            50.328266666667
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-1865",
+          "name": "Poděbrady - Velké Zboží, Nymburská 239, vodojem SZ od města u plnírny minerálních vod",
+          "coords": [
+            15.088933333333,
+            50.170083333333
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-1874",
+          "name": "Městec Králové, silo, +TMO, +VDF",
+          "coords": [
+            15.295430555556,
+            50.210788888889
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-1908",
+          "name": "Nymburk, Pražská 2260, sladovna u železničního mostu, +TMO, +VDF",
+          "coords": [
+            15.036275,
+            50.178638888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-2028",
+          "name": "Úvaly, příhradová rozhledna, +TMO, +VDF",
+          "coords": [
+            14.730388888889,
+            50.077719444444
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-2041",
+          "name": "Čelákovice, Toušeňská 2042, TESCO, indoor",
+          "coords": [
+            14.744138888889,
+            50.155480555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-2313",
+          "name": "Příbram - Březové Hory, Husova 622, Kaufland, indoor v prodejně O2",
+          "coords": [
+            13.997638888889,
+            49.692677777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-2368",
+          "name": "Pašinovice, Kašparův lom 478 m, stožárek na kontejneru Z od obce (zrušeno)",
+          "coords": [
+            14.519333333333,
+            48.871027777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-2386",
+          "name": "České Budějovice, výstaviště, pavilon Z, +TMO",
+          "coords": [
+            14.459380555556,
+            48.984480555556
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-2485",
+          "name": "České Budějovice - Rožnov, Strádova 1725/37, panelák, +TMO (zrušeno)",
+          "coords": [
+            14.467294444444,
+            48.9542
+          ],
+          "cells_without_current_gps": 15
+        },
+        {
+          "id": "O2-GSMWEB-2967",
+          "name": "Bělá nad Radbuzou, TV převaděč, +TMO",
+          "coords": [
+            12.712155555556,
+            49.587105555556
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-3080",
+          "name": "Plzeň - Slovany, Guldenerova 2577/19, ČEZ, indoor",
+          "coords": [
+            13.394038888889,
+            49.742338888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-3862",
+          "name": "Louny, Husova, komín Praga, +TMO",
+          "coords": [
+            13.815188888889,
+            50.358633333333
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "O2-GSMWEB-3904",
+          "name": "Komořany, důl Čs. armády",
+          "coords": [
+            13.544605555556,
+            50.533016666667
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-3963",
+          "name": "Dubí - Mstišov, Školní 39, MŠ, +TMO",
+          "coords": [
+            13.778475,
+            50.666402777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-3981",
+          "name": "Teplice, Alejní 2754, panelák, +TMO",
+          "coords": [
+            13.821747222222,
+            50.639422222222
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-3989",
+          "name": "Teplice - Sobědruhy, Srbická, tubusový stožár za OC Olympia, +TMO",
+          "coords": [
+            13.865,
+            50.664166666667
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-3994",
+          "name": "Teplice, Karla Čapka 2525, panelák, +TMO",
+          "coords": [
+            13.836233333333,
+            50.645855555556
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-3999",
+          "name": "Teplice, 28. října 889/32, +TMO",
+          "coords": [
+            13.828583333333,
+            50.645613888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4000",
+          "name": "Teplice - Prosetice, Rovná 250/2, panelák, +TMO",
+          "coords": [
+            13.842647222222,
+            50.634394444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4012",
+          "name": "Teplice, Habrová 3103/27, panelák, +TMO",
+          "coords": [
+            13.825002777778,
+            50.620897222222
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-4022",
+          "name": "Teplice - Trnovany, Maršovská 1453/2, panelák, +TMO",
+          "coords": [
+            13.845266666667,
+            50.660108333333
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4023",
+          "name": "Teplice, Opavská 2624, panelák, +TMO",
+          "coords": [
+            13.820772222222,
+            50.628091666667
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4026",
+          "name": "Teplice, Spojenecká, komín Bonexu, +TMO, +VDF",
+          "coords": [
+            13.823730555556,
+            50.644969444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4032",
+          "name": "Chabařovice, Masarykova 559, ZŠ, +TMO",
+          "coords": [
+            13.935863888889,
+            50.678236111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4037",
+          "name": "Ústí nad Labem - Severní Terasa, Sociální péče 2773/2, Hotelový dům, +TMO",
+          "coords": [
+            14.030463888889,
+            50.676780555556
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4039",
+          "name": "Ústí nad Labem - Krásné Březno, Drážďanská 80/82, Pivovar Zlatopramen, +TMO",
+          "coords": [
+            14.076427777778,
+            50.664486111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4042",
+          "name": "Povrly - Mašovice, nízký zelený tubusový stožár nad obcí, +TMO",
+          "coords": [
+            14.138441666667,
+            50.687494444444
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-4043",
+          "name": "Ústí nad Labem - Severní Terasa, Mezní, betonový stožár u fy Severotisk, +TMO",
+          "coords": [
+            14.035566666667,
+            50.684633333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4045",
+          "name": "Ústí nad Labem - Střekov, Nová 1395/14, panelák, +TMO",
+          "coords": [
+            14.063697222222,
+            50.656808333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4046",
+          "name": "Ústí nad Labem - Mojžíř, Peškova 512, panelák, +TMO, +VDF",
+          "coords": [
+            14.106663888889,
+            50.67945
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4048",
+          "name": "Ústí nad Labem - Předlice, betonový stožár u průmyslové zóny, +TMO",
+          "coords": [
+            13.982622222222,
+            50.663488888889
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-4053",
+          "name": "Ústí nad Labem - Všebořice, Spartakiádní 273/25, panelák, +TMO",
+          "coords": [
+            13.98965,
+            50.683802777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4055",
+          "name": "Tisá 189, ZŠ, +TMO, +VDF",
+          "coords": [
+            14.024894444444,
+            50.787105555556
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4056",
+          "name": "Ústí nad Labem - Krásné Březno, U Podjezdu 523/2, Elit, +TMO",
+          "coords": [
+            14.064258333333,
+            50.664438888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4058",
+          "name": "Velké Březno, Pivovarská 116, komín pivovaru, +TMO, +VDF",
+          "coords": [
+            14.139505555556,
+            50.665733333333
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4060",
+          "name": "Ústí nad Labem, Bílinská 3490/6, OC Fórum, +TMO, +VDF",
+          "coords": [
+            14.039913888889,
+            50.658547222222
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4063",
+          "name": "Petrovice - Krásný Les, TV převaděč JZ od obce, +TMO",
+          "coords": [
+            13.945430555556,
+            50.758672222222
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4064",
+          "name": "Ústí nad Labem - Střekov, Kojetická, tubusový stožárek, +TMO",
+          "coords": [
+            14.070166666667,
+            50.652327777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-4066",
+          "name": "Ústí nad Labem - Klíše, Masarykova 881/195, bytovka, +TMO",
+          "coords": [
+            14.016597222222,
+            50.674302777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4067",
+          "name": "Mnichov, tubusový stožár u vodárny na Z okraji obce, +TMO",
+          "coords": [
+            14.074763888889,
+            50.722438888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4068",
+          "name": "Trmice, Nerudova 734/2, panelák, ubytovna Garni, +TMO",
+          "coords": [
+            14.004638888889,
+            50.646380555556
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4070",
+          "name": "Ústí nad Labem - Střekov, Nová 1415/54, panelák, +TMO",
+          "coords": [
+            14.065413888889,
+            50.654902777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4078",
+          "name": "Ústí nad Labem - Střekov, Masarykova zdymadla, +TMO",
+          "coords": [
+            14.046144444444,
+            50.638408333333
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4079",
+          "name": "Roudníky, komín v průmyslovém areálu S od obce, +TMO",
+          "coords": [
+            13.931380555556,
+            50.661830555556
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4081",
+          "name": "Ústí nad Labem - Severní Terasa, Stavbařů 2856/3, panelák, +TMO",
+          "coords": [
+            14.033105555556,
+            50.680452777778
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4083",
+          "name": "Ústí nad Labem, Hilarova 2424/1, panelák, +TMO, +VDF",
+          "coords": [
+            14.038144444444,
+            50.666538888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4084",
+          "name": "Ústí nad Labem - Severní Terasa, Šrámkova 3215/16, panelák, +TMO",
+          "coords": [
+            14.057194444444,
+            50.674055555556
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4085",
+          "name": "Ústí nad Labem - Klíše, Klíšská 702/173, bytový dům, +TMO",
+          "coords": [
+            14.016513888889,
+            50.668552777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4087",
+          "name": "Trmice, Edisonova 453, hala teplárny Dalkia, +TMO, +VDF",
+          "coords": [
+            13.988841666667,
+            50.644958333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-4090",
+          "name": "Ústí nad Labem - Severní Terasa, Výstupní 3219/2, střední škola, +TMO, +VDF",
+          "coords": [
+            14.048666666667,
+            50.672841666667
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4092",
+          "name": "Ústí nad Labem - Střekov, Žukovova, silo Setuza, +TMO",
+          "coords": [
+            14.052955555556,
+            50.656261111111
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4107",
+          "name": "Radejčín, D8/59km, tunely Radejčín a Prackovice, indoor",
+          "coords": [
+            14.004305555556,
+            50.583694444444
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-4114",
+          "name": "Litoměřice, Alfonse Muchy 420/12, panelák (zrušeno)",
+          "coords": [
+            14.131505555556,
+            50.546944444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4159",
+          "name": "Budyně nad Ohří, vodojem na S okraji obce, +TMO",
+          "coords": [
+            14.127486111111,
+            50.407830555556
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-4206",
+          "name": "Hamr na Jezeře, Okružní 68, vila, +VDF (zrušeno)",
+          "coords": [
+            14.837483333333,
+            50.702433333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4295",
+          "name": "Maršovice, Dalešický vrch 676 m, betonový stožár, +TMO",
+          "coords": [
+            15.200055555556,
+            50.688944444444
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-4317",
+          "name": "Jablonec nad Nisou, Vítězslava Nezvala, komín, +TMO",
+          "coords": [
+            15.190211111111,
+            50.731052777778
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "O2-GSMWEB-4461",
+          "name": "Liberec - Vesec, mobilní BTS v lyžařském areálu",
+          "coords": [
+            15.068266666667,
+            50.727966666667
+          ],
+          "cells_without_current_gps": 14
+        },
+        {
+          "id": "O2-GSMWEB-4490",
+          "name": "Horní Branná, Principálek 523 m, příhradový stožár V nad obcí, +TMO",
+          "coords": [
+            15.579563888889,
+            50.607769444444
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-4538",
+          "name": "Hradec Králové - Třebeš, třída Edvarda Beneše 570/100, panelák, +TMO",
+          "coords": [
+            15.840225,
+            50.190433333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-4578",
+          "name": "Smiřice, silo, +TMO, +VDF",
+          "coords": [
+            15.850533333333,
+            50.294308333333
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-4608",
+          "name": "Zdechovice, příhradový stožár na SV okraji obce, +TMO",
+          "coords": [
+            15.565033333333,
+            50.22725
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4644",
+          "name": "Hradec Králové - Věkoše, Park 360, mobilní BTS (nové)",
+          "coords": [
+            15.8407,
+            50.24995
+          ],
+          "cells_without_current_gps": 8
+        },
+        {
+          "id": "O2-GSMWEB-4665",
+          "name": "Nová Paka, U Studénky 1299, panelák, +TMO",
+          "coords": [
+            15.510277777778,
+            50.484747222222
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-4823",
+          "name": "Vojenice, Osičina 416 m, příhradová rozhledna, +TMO",
+          "coords": [
+            16.127322222222,
+            50.224227777778
+          ],
+          "cells_without_current_gps": 9
+        },
+        {
+          "id": "O2-GSMWEB-4911",
+          "name": "Odolov, mobilní BTS nad věznicí",
+          "coords": [
+            16.087472222222,
+            50.534463888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-4955",
+          "name": "Chrast, vodárenská věž, +TMO, +VDF",
+          "coords": [
+            15.93685,
+            49.902827777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-5146",
+          "name": "Strakov, hydroglobus, +TMO",
+          "coords": [
+            16.371066666667,
+            49.863233333333
+          ],
+          "cells_without_current_gps": 9
+        },
+        {
+          "id": "O2-GSMWEB-5258",
+          "name": "Šedivec, Masnice 539 m, příhradový stožár, +TMO",
+          "coords": [
+            16.543736111111,
+            50.042477777778
+          ],
+          "cells_without_current_gps": 9
+        },
+        {
+          "id": "O2-GSMWEB-5303",
+          "name": "Mladkov, příhradový stožár S od obce, +TMO",
+          "coords": [
+            16.628447222222,
+            50.10415
+          ],
+          "cells_without_current_gps": 7
+        },
+        {
+          "id": "O2-GSMWEB-5474",
+          "name": "Kozlov, D1/120km, tubusový stožár S od D1, +TMO",
+          "coords": [
+            15.700422222222,
+            49.421708333333
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "O2-GSMWEB-5478",
+          "name": "Svojkovice, příhradový stožár v obci, +TMO",
+          "coords": [
+            15.636255555556,
+            49.166847222222
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "O2-GSMWEB-5592",
+          "name": "Moravské Budějovice, K Hoře, mobilní BTS",
+          "coords": [
+            15.803002777778,
+            49.061022222222
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "O2-GSMWEB-5728",
+          "name": "Moravec, objekt ZD, +TMO",
+          "coords": [
+            16.140272222222,
+            49.442663888889
+          ],
+          "cells_without_current_gps": 8
+        },
+        {
+          "id": "O2-GSMWEB-5890",
+          "name": "Brno - Pisárky, Květná 173/19, ÚKZÚZ",
+          "coords": [
+            16.572833333333,
+            49.194438888889
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-5931",
+          "name": "Brno - Starý Lískovec, Kurská 295/2, panelák",
+          "coords": [
+            16.554483333333,
+            49.169033333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-5948",
+          "name": "Brno - Černá Pole, Merhautova 971/95 x Trávníky (zrušeno)",
+          "coords": [
+            16.623894444444,
+            49.210555555556
+          ],
+          "cells_without_current_gps": 21
+        },
+        {
+          "id": "O2-GSMWEB-5953",
+          "name": "Brno - Slatina, Jihomoravské náměstí 1098/1, Albert",
+          "coords": [
+            16.684755555556,
+            49.178730555556
+          ],
+          "cells_without_current_gps": 21
+        },
+        {
+          "id": "O2-GSMWEB-5974",
+          "name": "Brno - Líšeň, Pohankova 31/5, ZŠ",
+          "coords": [
+            16.695766666667,
+            49.205783333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6021",
+          "name": "Brno - Slatina, Tuřanka, komín u trati",
+          "coords": [
+            16.679975,
+            49.172561111111
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6046",
+          "name": "Brno - Vinohrady, Žarošická 4355/11, malý příhradový stožár u Penny Marketu",
+          "coords": [
+            16.662552777778,
+            49.210955555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6047",
+          "name": "Brno - Vinohrady, Žarošická 4329/24, tržnice Vybstav",
+          "coords": [
+            16.663191666667,
+            49.207780555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6051",
+          "name": "Brno - Líšeň, Zetor, budova v areálu slévárny (zrušeno)",
+          "coords": [
+            16.679861111111,
+            49.193611111111
+          ],
+          "cells_without_current_gps": 10
+        },
+        {
+          "id": "O2-GSMWEB-6081",
+          "name": "Brno - Černá Pole, Merhautova 590/15, Střední zdravotnická škola, indoor pikocela",
+          "coords": [
+            16.6232,
+            49.204458333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6089",
+          "name": "Brno - Štýřice, Holandská 872/9, Infosys (?)",
+          "coords": [
+            16.604808333333,
+            49.182536111111
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6109",
+          "name": "Brno - Lesná, Nejedlého 373/1, U1, indoor pikocela",
+          "coords": [
+            16.629166666667,
+            49.227083333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-6115",
+          "name": "Brno - Štýřice, Grmelova 747/1, fa Wärme, indoor pikocela",
+          "coords": [
+            16.598916666667,
+            49.182138888889
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6116",
+          "name": "Brno - Zábrdovice, Jugoslávská 770/13, lékárna, indoor pikocela",
+          "coords": [
+            16.623888888889,
+            49.204027777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6131",
+          "name": "Brno, Česká 143/27, indoor v prodejně O2",
+          "coords": [
+            16.605377777778,
+            49.197008333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-6158",
+          "name": "Sokolnice, příhradový stožár na V okraji obce, +VDF",
+          "coords": [
+            16.731319444444,
+            49.112461111111
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6180",
+          "name": "Mokrá-Horákov, Horákov 169, panelák, +TMO",
+          "coords": [
+            16.747519444444,
+            49.213880555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6188",
+          "name": "Maršov, příhradový stožárek na vodárně JV od obce, +TMO",
+          "coords": [
+            16.361333333333,
+            49.28025
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6281",
+          "name": "Vojkovice, Hlavní 51, Motel Vojkovice, +TMO",
+          "coords": [
+            16.608486111111,
+            49.051213888889
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-6365",
+          "name": "Velké Němčice - Zeleňák, D2/17km, mobilní BTS",
+          "coords": [
+            16.685947222222,
+            49.016127777778
+          ],
+          "cells_without_current_gps": 14
+        },
+        {
+          "id": "O2-GSMWEB-6484",
+          "name": "Vyškov, Puškinova 490/2, panelák, +TMO",
+          "coords": [
+            16.983605555556,
+            49.276958333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6485",
+          "name": "Drysice, příhradový stožár u sjezdu z D46, +TMO",
+          "coords": [
+            17.058227777778,
+            49.329625
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6497",
+          "name": "Vyškov, náměstí Čsl. armády 421/8, budova O2, +TMO, +VDF",
+          "coords": [
+            17.000525,
+            49.275288888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-6499",
+          "name": "Vyškov, Jana Šoupala 491/1, obchodní dům, +TMO",
+          "coords": [
+            16.998472222222,
+            49.277669444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-6508",
+          "name": "Drnovice, Náves 109, ZŠ, +TMO",
+          "coords": [
+            16.950233333333,
+            49.277152777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6513",
+          "name": "Kozlany, Jaslůvka 351 m, příhradový stožár nad skládkou, +TMO, +VDF",
+          "coords": [
+            17.027997222222,
+            49.198525
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6526",
+          "name": "Holubice, hala Zásilkovna, mobilní BTS",
+          "coords": [
+            16.810258333333,
+            49.188938888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-6528",
+          "name": "Vyškov, Sídliště Osvobození 618/5, panelák, +TMO",
+          "coords": [
+            16.985736111111,
+            49.283869444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-6560",
+          "name": "Znojmo, Vídeňská třída, komín nemocnice, +TMO",
+          "coords": [
+            16.051488888889,
+            48.851575
+          ],
+          "cells_without_current_gps": 27
+        },
+        {
+          "id": "O2-GSMWEB-6600",
+          "name": "Chvalatice, příhradový stožár Z od obce, +TMO, +VDF",
+          "coords": [
+            15.739544444444,
+            48.951911111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-6738",
+          "name": "Litovel, Novosady 548/4, panelák, +TMO",
+          "coords": [
+            17.078447222222,
+            49.708394444444
+          ],
+          "cells_without_current_gps": 24
+        },
+        {
+          "id": "O2-GSMWEB-6756",
+          "name": "Olomouc - Neředín, Politických vězňů 566/13, panelák u Globusu, +TMO",
+          "coords": [
+            17.222541666667,
+            49.598283333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6764",
+          "name": "Olomouc - Nová Ulice, Krapkova 1159/3, Česká pojišťovna, +TMO",
+          "coords": [
+            17.241944444444,
+            49.594769444444
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6767",
+          "name": "Olomouc, 8. května 465/24, Galerie Moritz, +TMO",
+          "coords": [
+            17.250263888889,
+            49.595183333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6781",
+          "name": "Příkazy 281, mobilní BTS ve dvoře, +TMO",
+          "coords": [
+            17.147272222222,
+            49.642
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "O2-GSMWEB-6822",
+          "name": "Smržice, betonový stožár na Z okraji obce, +TMO",
+          "coords": [
+            17.095277777778,
+            49.506683333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6855",
+          "name": "Otaslavice, tubusový stožár J od obce, +TMO, +VDF",
+          "coords": [
+            17.069480555556,
+            49.378402777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6857",
+          "name": "Prostějov - Čechovice, Čechovická 179/53, ZŠ a MŠ, +TMO, +VDF",
+          "coords": [
+            17.076241666667,
+            49.468505555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6859",
+          "name": "Prostějov, Plumlovská 522/44, +TMO",
+          "coords": [
+            17.101552777778,
+            49.472619444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-6860",
+          "name": "Prostějovičky, Sednička 396 m, příhradový stožár, +TMO, +VDF",
+          "coords": [
+            17.006836111111,
+            49.429908333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-6871",
+          "name": "Prostějov, Jana Zrzavého 3987/2, panelák, +TMO",
+          "coords": [
+            17.093763888889,
+            49.476333333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-7212",
+          "name": "Rožnov pod Radhoštěm, Láň 2310, Retigo",
+          "coords": [
+            18.131480555556,
+            49.453997222222
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-7230",
+          "name": "Zubří, Hlavní 70, komín ZŠ",
+          "coords": [
+            18.093583333333,
+            49.473055555556
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-7516",
+          "name": "Třinec - Kanada, Lánská, betonový stožár u domova mládeže, +TMO",
+          "coords": [
+            18.641911111111,
+            49.673438888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-7517",
+          "name": "Třinec, Lidická 795, Dům hrůzy, +TMO",
+          "coords": [
+            18.678363888889,
+            49.668383333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-7520",
+          "name": "Bílá, Zbojnická 773 m, tubusový stožár, +TMO, +VDF",
+          "coords": [
+            18.464716666667,
+            49.43615
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-7521",
+          "name": "Bumbálka - Bílá 66, motorest u bývalého hraničního přechodu, +TMO",
+          "coords": [
+            18.409902777778,
+            49.399372222222
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-7545",
+          "name": "Třinec - Oldřichovice, silo, +TMO, +VDF",
+          "coords": [
+            18.644319444444,
+            49.664786111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-7558",
+          "name": "Třinec - Dolní Líštná, betonový stožár nad II/476, +TMO, +VDF",
+          "coords": [
+            18.693444444444,
+            49.689716666667
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-7568",
+          "name": "Třinec, Frýdecká 277, betonový stožár v areálu pneuservisu, +TMO, +VDF",
+          "coords": [
+            18.661438888889,
+            49.672925
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-7569",
+          "name": "Čeladná, Žár 630 m, betonový stožár, +TMO, +VDF",
+          "coords": [
+            18.365008333333,
+            49.538783333333
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-7591",
+          "name": "Frýdek-Místek - Nové Dvory, příhradový stožár u skládky, +TMO, +VDF",
+          "coords": [
+            18.392194444444,
+            49.694594444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "O2-GSMWEB-7643",
+          "name": "Český Těšín - Mosty, Strojnická 402, průmyslová hala",
+          "coords": [
+            18.602247222222,
+            49.751291666667
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "O2-GSMWEB-7756",
+          "name": "Mošnov, letiště, budova s kruhovou věží, +TMO",
+          "coords": [
+            18.113147222222,
+            49.691188888889
+          ],
+          "cells_without_current_gps": 7
+        },
+        {
+          "id": "O2-GSMWEB-7807",
+          "name": "Fulnek, příhradový stožár, +TMO",
+          "coords": [
+            17.900644444444,
+            49.715458333333
+          ],
+          "cells_without_current_gps": 27
+        },
+        {
+          "id": "O2-GSMWEB-7822",
+          "name": "Spálov, betonový stožár na S okraji obce, +TMO",
+          "coords": [
+            17.717444444444,
+            49.707080555556
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "O2-GSMWEB-7880",
+          "name": "Opava - Komárov, Teva, budova hasičů v areálu, +TMO",
+          "coords": [
+            17.967947222222,
+            49.920422222222
+          ],
+          "cells_without_current_gps": 2
+        }
+      ],
+      "merged_id_aliases": {},
+      "replaced_old_sites": [],
+      "duplicate_source_rows_removed": 0,
+      "duplicate_output_cells": 0,
+      "inputs": [
+        {
+          "csv_rows": 20460,
+          "gps_rows": 20460,
+          "csv_without_gps": [],
+          "csv_file": "eurotel.csv",
+          "gps_file": "gsm-search-name.html",
+          "csv_sha256": "3acd2b6c5e0dce24c47b06075d74821524b58512a9e3ba1e941c0bbb22f6cfb8",
+          "gps_sha256": "9df38c93c2d12df95cac1f5154a0753c981f4fe5fded7cd7d33766128d153662"
+        },
+        {
+          "csv_rows": 98042,
+          "gps_rows": 98042,
+          "csv_without_gps": [],
+          "csv_file": "o2lte.csv",
+          "gps_file": "o2lte-all-gps.html",
+          "csv_sha256": "3b250e0eadbb1cbd868488426f2308822d39682ea97104d9cc87780beff67017",
+          "gps_sha256": "2f6b5680ff994cb30c92579edc466d7f8b14f0bdd1d9c42a3687cfb7d209bbf9"
+        }
+      ],
+      "baseline_sha256": "298254b1d020df4765e859c527073fb7cef1deaabec109872f916e16f7932850",
+      "output_sha256": "a4f534ea5329e825642c2c164e1c58cebb4cd9745104095af1834e054898c4a3",
+      "idempotent": true
+    },
+    "tmobile": {
+      "before_sites": 7063,
+      "after_sites": 7138,
+      "before_cells": 72841,
+      "after_cells": 77274,
+      "source_sites": 7122,
+      "source_cells": 77011,
+      "added_sites": [
+        {
+          "id": "TM-GSMWEB-7064",
+          "name": "Praha 1 - Nové Město, Národní 63/26, Máj, indoor",
+          "coords": [
+            14.419702777778,
+            50.082088888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7065",
+          "name": "Brno - Sadová, Kumpoštova 196/4a, bytový dům",
+          "coords": [
+            16.607725,
+            49.229997222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7066",
+          "name": "Brno - Zábrdovice, Tkalcovská 676/12, bytový dům",
+          "coords": [
+            16.628252777778,
+            49.197138888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7067",
+          "name": "Kroměříž, 17. listopadu 3980/4, panelák, +O2",
+          "coords": [
+            17.389722222222,
+            49.289216666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7068",
+          "name": "Litovel, Novosady 547/3, panelák, +O2",
+          "coords": [
+            17.078766666667,
+            49.708061111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7069",
+          "name": "Hradečno, betonový stožár SZ od obce, +O2",
+          "coords": [
+            13.985102777778,
+            50.189877777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7070",
+          "name": "Dobříkov, stožárek na kraji lesa V nad obcí, +O2",
+          "coords": [
+            13.085388888889,
+            49.379819444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7071",
+          "name": "Vrskmaň, Průmyslová 87, hala Jungheinrich, indoor",
+          "coords": [
+            13.468175,
+            50.507066666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7072",
+          "name": "Běštín, betonový stožár na S okraji obce, +O2",
+          "coords": [
+            14.015411111111,
+            49.810377777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7073",
+          "name": "Vojkovice, příhradový stožár Z od obce, +O2, +VDF",
+          "coords": [
+            14.365277777778,
+            50.294444444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7074",
+          "name": "Děčín - Nové Město, U Nemocnice 605/1, nemocnice, budova N, indoor",
+          "coords": [
+            14.226405555556,
+            50.782205555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7075",
+          "name": "Louny, Husova, komín u nádraží, +O2",
+          "coords": [
+            13.816952777778,
+            50.361041666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7076",
+          "name": "Jablonec nad Nisou, Vítězslava Nezvala 4046/9, bytový dům, +O2",
+          "coords": [
+            15.190925,
+            50.732238888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7077",
+          "name": "Slaný, Netovická 386, Meiller",
+          "coords": [
+            14.093005555556,
+            50.223611111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7078",
+          "name": "Kladenské Rovné, příhradový stožár v lese SV od obce, +O2",
+          "coords": [
+            14.2274,
+            48.796091666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7079",
+          "name": "Vyšné, příhradový stožár v lese za železniční zastávkou, +O2, +VDF",
+          "coords": [
+            14.864402777778,
+            48.797280555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7080",
+          "name": "Vráž, příhradový stožár",
+          "coords": [
+            14.123966666667,
+            49.387194444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7081",
+          "name": "Olší 55, Efaflex, +O2 (nové)",
+          "coords": [
+            14.506169444444,
+            49.431963888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7082",
+          "name": "Lažany, příhradový stožár na okraji obce, +O2",
+          "coords": [
+            13.509511111111,
+            50.400869444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7083",
+          "name": "Kalec, příhradový stožár v lese Z od obce",
+          "coords": [
+            13.311211111111,
+            50.021830555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7084",
+          "name": "Hrabůvka, D1/306km, příhradový stožár u kamenolomu, +O2 (nové)",
+          "coords": [
+            17.700011111111,
+            49.574525
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7085",
+          "name": "Znojmo, náměstí Republiky 585/1, věž okresního soudu, +O2",
+          "coords": [
+            16.052127777778,
+            48.852430555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7086",
+          "name": "Příkazy, příhradový stožár u nádraží, +O2",
+          "coords": [
+            17.141372222222,
+            49.640266666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7087",
+          "name": "Lhota, příhradový stožár u hřbitova, +O2, +VDF (nové)",
+          "coords": [
+            17.605794444444,
+            49.172347222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7088",
+          "name": "Rychvald, Revoluční, příhradový stožár, +O2, +VDF",
+          "coords": [
+            18.372111111111,
+            49.846083333333
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7089",
+          "name": "Velká Bíteš - Jáchymov, příhradový stožár u D1, +O2",
+          "coords": [
+            16.163383333333,
+            49.299727777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7090",
+          "name": "Blansko - Lažánky 199, kulturní dům, +O2",
+          "coords": [
+            16.708697222222,
+            49.350841666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7091",
+          "name": "Vojkovice, Sportovní, mobilní BTS u fotbalového hřiště, +O2",
+          "coords": [
+            16.602611111111,
+            49.051508333333
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7092",
+          "name": "Moravec, příhradový stožár na J okraji obce, +O2",
+          "coords": [
+            16.141544444444,
+            49.434513888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7093",
+          "name": "Břeclav - Poštorná, Hraniční 1282, příhradový stožár za halou Lamé, +VDF",
+          "coords": [
+            16.860169444444,
+            48.740355555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7094",
+          "name": "Němčičky, Březovec 284 m, příhradový stožár JV od obce, +O2",
+          "coords": [
+            16.098125,
+            48.938680555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7095",
+          "name": "Sázava, Školská 308, panelák, +O2 (nové)",
+          "coords": [
+            14.901938888889,
+            49.875297222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7096",
+          "name": "Svojkovice, kotvený stožár u I/38, +O2",
+          "coords": [
+            15.642211111111,
+            49.168252777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7097",
+          "name": "Koclířov, příhradový stožár na Z okraji obce",
+          "coords": [
+            16.516738888889,
+            49.7696
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7098",
+          "name": "Konice - Čunín, příhradový stožár, +O2",
+          "coords": [
+            16.907475,
+            49.565075
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7099",
+          "name": "Slatina 54, obecní úřad, +O2",
+          "coords": [
+            16.607247222222,
+            49.628197222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7100",
+          "name": "Napajedla, Pod Zahrádkami, příhradový stožár, +O2, +VDF",
+          "coords": [
+            17.508655555556,
+            49.165472222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7101",
+          "name": "Letovice - Slatinka, příhradový stožár nad I/43, +O2, +VDF",
+          "coords": [
+            16.562138888889,
+            49.572083333333
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7102",
+          "name": "Hořovice, Pražská, Kaufland, mobilní BTS v rohu parkoviště, +O2 (nové)",
+          "coords": [
+            13.920202777778,
+            49.838577777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7103",
+          "name": "Fulnek, Česká, mobilní BTS, +O2",
+          "coords": [
+            17.90025,
+            49.715619444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7104",
+          "name": "Církvice, příhradový stožár SV nad obcí",
+          "coords": [
+            15.020805555556,
+            49.914375
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7105",
+          "name": "Hluboká, příhradový stožár S od obce, +O2",
+          "coords": [
+            16.070425,
+            49.849744444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7106",
+          "name": "Úvaly, Jeronýmova, příhradový stožár za areálem skladů, +O2, +VDF",
+          "coords": [
+            14.718686111111,
+            50.060566666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7107",
+          "name": "Velké Němčice - Zeleňák, příhradový stožár u D2, +O2",
+          "coords": [
+            16.68475,
+            49.01445
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7108",
+          "name": "Žabčice, příhradový stožár na J okraji obce u hřiště, +O2, +VDF",
+          "coords": [
+            16.5998,
+            49.007361111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7109",
+          "name": "Moravské Budějovice, silo u nádraží, +O2",
+          "coords": [
+            15.809722222222,
+            49.058972222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7110",
+          "name": "Ondřejov, Guthova 266, panelák, +O2",
+          "coords": [
+            14.782663888889,
+            49.905836111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7111",
+          "name": "Pavlínov, V Horách 585 m, příhradový stožár V od obce, +O2",
+          "coords": [
+            15.890319444444,
+            49.346344444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7112",
+          "name": "Otín, příhradový stožár V od obce, +O2",
+          "coords": [
+            15.913452777778,
+            49.361177777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7113",
+          "name": "Rokytnice v Orlických horách, betonový stožár u pevnosti Hanička, +O2 (nové)",
+          "coords": [
+            16.513025,
+            50.196394444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7114",
+          "name": "Lhota u Lysic, Na Stráži 587 m, příhradový stožár Z od obce, +O2 (nové)",
+          "coords": [
+            16.490555555556,
+            49.4708
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7115",
+          "name": "Doubravice 1.díl, příhradový stožár S od obce, +O2",
+          "coords": [
+            14.75135,
+            49.870097222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7116",
+          "name": "Bělá, příhradový stožár u silnice na Tasice, +O2 (nové)",
+          "coords": [
+            15.243744444444,
+            49.756716666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7117",
+          "name": "Smilkov - Radotínek, příhradový stožár SZ od obce, +O2",
+          "coords": [
+            14.638230555556,
+            49.60925
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7118",
+          "name": "Ladná, příhradový stožár mezi obcí a D2, +O2",
+          "coords": [
+            16.888694444444,
+            48.809955555556
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7119",
+          "name": "Český Šternberk, mobilní BTS na skále nad jezem, +O2 (nové)",
+          "coords": [
+            14.932308333333,
+            49.815152777778
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7120",
+          "name": "Praha 4 - Krč, Za Obecním úřadem, mobilní BTS před budovou Vydra (zrušeno)",
+          "coords": [
+            14.447513888889,
+            50.037169444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7121",
+          "name": "Klášterec nad Ohří - Vernéřov, Průmyslová 22, hala TGCZ, indoor pikocela (nové)",
+          "coords": [
+            13.211033333333,
+            50.398611111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7122",
+          "name": "Ostrava - Hrušov, Žižkova, hala Contera Park, indoor",
+          "coords": [
+            18.290511111111,
+            49.866769444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7123",
+          "name": "Brno - Zábrdovice, Ponávka 139/6, Úrazová nemocnice, indoor",
+          "coords": [
+            16.615277777778,
+            49.197686111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7124",
+          "name": "Cheb - Starý Hrozňatov, příhradový stožár u silničky Z od obce",
+          "coords": [
+            12.382927777778,
+            50.0274
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7125",
+          "name": "Boršíkov, příhradový stožár na Z okraji obce (zrušeno)",
+          "coords": [
+            14.632588888889,
+            48.818133333333
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7126",
+          "name": "Brno - Zábrdovice, Lazaretní 1/7, Nová Zbrojovka, indoor (nové)",
+          "coords": [
+            16.630630555556,
+            49.203641666667
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7127",
+          "name": "Praha 9 - Libeň, Novovysočanská 696/3, PRE, budova B, indoor pikocela",
+          "coords": [
+            14.479694444444,
+            50.097819444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7128",
+          "name": "Vysoké nad Jizerou, Dr. Karla Farského 300, střední škola (nové)",
+          "coords": [
+            15.406769444444,
+            50.681422222222
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7129",
+          "name": "Linhartovy, příhradový stožár v areálu pily",
+          "coords": [
+            17.619822222222,
+            50.136094444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7130",
+          "name": "Starovice 900, Kaufland, mobilní BTS na služebním parkovišti",
+          "coords": [
+            16.723841666667,
+            48.952069444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7131",
+          "name": "Divnice 156, hala v průmyslové zóně",
+          "coords": [
+            17.907308333333,
+            49.100633333333
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7132",
+          "name": "Jámy, příhradový stožár na kopci Horka (nové)",
+          "coords": [
+            15.998125,
+            49.542888888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7133",
+          "name": "Hlávkov, příhradový stožár u kravína JV od obce (nové)",
+          "coords": [
+            15.493477777778,
+            49.433258333333
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7134",
+          "name": "Olomouc - Chomoutov, příhradový stožár na V okraji obce (nové)",
+          "coords": [
+            17.233855555556,
+            49.640238888889
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7135",
+          "name": "Bruntál, Opavská 2075/45a, kotvený stožárek v areálu Alfa Plastik (nové)",
+          "coords": [
+            17.477641666667,
+            49.996511111111
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7136",
+          "name": "Rousínov - Kroužek, příhradový stožár nad D1",
+          "coords": [
+            16.900472222222,
+            49.194769444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7137",
+          "name": "Pouzdřany, U Mlýna, příhradový stožár u trati",
+          "coords": [
+            16.623630555556,
+            48.947269444444
+          ]
+        },
+        {
+          "id": "TM-GSMWEB-7138",
+          "name": "Kuřim, Na Golfu, zelený betonový stožár (nové)",
+          "coords": [
+            16.527011111111,
+            49.277625
+          ]
+        }
+      ],
+      "corrected_coordinates": [
+        {
+          "id": "TM-GSMWEB-2356",
+          "name": "Písek, Komenského 89/20, gymnázium, +O2",
+          "old_coords": [
+            14.15125,
+            49.306405555556
+          ],
+          "coords": [
+            14.151291666667,
+            49.306541666667
+          ],
+          "distance_m": 15.43
+        },
+        {
+          "id": "TM-GSMWEB-6671",
+          "name": "Orlová - Lazy, mobilní BTS v areálu bývalého dolu Lazy, +O2",
+          "old_coords": [
+            18.446972222222,
+            49.827975
+          ],
+          "coords": [
+            18.441583333333,
+            49.829616666667
+          ],
+          "distance_m": 427.48
+        }
+      ],
+      "retained_unverified": [
+        {
+          "id": "TM-GSMWEB-1268",
+          "name": "Trněný Újezd, kotvený příhradový stožárek u stožáru VVN (zrušeno)",
+          "coords": [
+            14.226283333333,
+            49.975219444444
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "TM-GSMWEB-1325",
+          "name": "Slatina, příhradový stožár nad obcí, +O2, +VDF",
+          "coords": [
+            14.226580555556,
+            50.229563888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-1356",
+          "name": "Slaný, Netovická, mobilní BTS na parkovišti nad halou Meiller",
+          "coords": [
+            14.095108333333,
+            50.223030555556
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "TM-GSMWEB-1393",
+          "name": "Kolín, Veltrubská 1014, bytový dům, +O2 (zrušeno)",
+          "coords": [
+            15.202738888889,
+            50.034544444444
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "TM-GSMWEB-1569",
+          "name": "Vinařice, příhradová věž S od obce, +O2",
+          "coords": [
+            14.949338888889,
+            50.387694444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-1588",
+          "name": "Mužský 40, restaurace a penzion Na Krásné Vyhlídce, +O2",
+          "coords": [
+            15.049811111111,
+            50.532941666667
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-1778",
+          "name": "Úvaly, příhradová rozhledna, +O2, +VDF",
+          "coords": [
+            14.730388888889,
+            50.077719444444
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "TM-GSMWEB-1900",
+          "name": "Vestec, Na Průhoně 159, mobilní BTS na parkovišti mobilek Meico",
+          "coords": [
+            14.508988888889,
+            49.979316666667
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-2050",
+          "name": "České Budějovice - Rožnov, Strádova 1725/37, panelák, +O2 (zrušeno)",
+          "coords": [
+            14.467294444444,
+            48.9542
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "TM-GSMWEB-2337",
+          "name": "Zvíkovské Podhradí, tubusový stožár u křižovatky, +O2",
+          "coords": [
+            14.204819444444,
+            49.423763888889
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-3369",
+          "name": "Louny, Husova, komín Praga, +O2",
+          "coords": [
+            13.815188888889,
+            50.358633333333
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "TM-GSMWEB-3634",
+          "name": "Budyně nad Ohří, vodojem na S okraji obce, +O2",
+          "coords": [
+            14.127486111111,
+            50.407830555556
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-3701",
+          "name": "Hamr na Jezeře, Okružní 68, vila, +O2, +VDF (nové)",
+          "coords": [
+            14.837483333333,
+            50.702433333333
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-3713",
+          "name": "Stráž pod Ralskem, Jezerní, betonový stožár, +O2",
+          "coords": [
+            14.821038888889,
+            50.697686111111
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-3745",
+          "name": "Jablonec nad Nisou, Vítězslava Nezvala, komín, +O2",
+          "coords": [
+            15.190211111111,
+            50.731052777778
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "TM-GSMWEB-3883",
+          "name": "Liberec - Vesec, mobilní BTS v lyžařském areálu",
+          "coords": [
+            15.068266666667,
+            50.727966666667
+          ],
+          "cells_without_current_gps": 10
+        },
+        {
+          "id": "TM-GSMWEB-3965",
+          "name": "Hradec Králové - Březhrad, Rovná 181, Makro, indoor",
+          "coords": [
+            15.801694444444,
+            50.179027777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-4171",
+          "name": "Vojenice, Osičina 416 m, příhradová rozhledna, +O2",
+          "coords": [
+            16.127322222222,
+            50.224227777778
+          ],
+          "cells_without_current_gps": 4
+        },
+        {
+          "id": "TM-GSMWEB-4233",
+          "name": "Horní Malá Úpa 116, tubusový stožárek, +O2",
+          "coords": [
+            15.819583333333,
+            50.744277777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-4248",
+          "name": "Chvaleč, TV převaděč, +O2, +VDF",
+          "coords": [
+            16.045116666667,
+            50.581147222222
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-4278",
+          "name": "Hajnice, Liščí Hora 609 m, příhradová věž, +O2, +VDF",
+          "coords": [
+            15.912247222222,
+            50.477383333333
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-4296",
+          "name": "Chrast, vodárenská věž, +O2, +VDF",
+          "coords": [
+            15.93685,
+            49.902827777778
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-4307",
+          "name": "Práčov, betonová vodárenská věž, +O2, +VDF",
+          "coords": [
+            15.813125,
+            49.876252777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-4523",
+          "name": "Strakov, hydroglobus, +O2",
+          "coords": [
+            16.371066666667,
+            49.863233333333
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-4575",
+          "name": "Mladkov, příhradový stožár S od obce, +O2",
+          "coords": [
+            16.628447222222,
+            50.10415
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-4746",
+          "name": "Svojkovice, příhradový stožár v obci, +O2",
+          "coords": [
+            15.636255555556,
+            49.166847222222
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "TM-GSMWEB-4913",
+          "name": "Moravec, objekt ZD, +O2",
+          "coords": [
+            16.140272222222,
+            49.442663888889
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "TM-GSMWEB-5261",
+          "name": "Brno - Staré Brno, Nové Sady 996/25, Titanium, indoor",
+          "coords": [
+            16.607130555556,
+            49.187394444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5325",
+          "name": "Vojkovice, Hlavní 51, Motel Vojkovice, +O2",
+          "coords": [
+            16.608486111111,
+            49.051213888889
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "TM-GSMWEB-5438",
+          "name": "Břeclav - Poštorná, Hraniční, areál Fosfa, mobilní BTS",
+          "coords": [
+            16.86675,
+            48.739475
+          ],
+          "cells_without_current_gps": 8
+        },
+        {
+          "id": "TM-GSMWEB-5447",
+          "name": "Lednice, Břeclavská 365, ZŠ, +O2",
+          "coords": [
+            16.803688888889,
+            48.798994444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5489",
+          "name": "Klobouky u Brna, příhradový stožár na JV okraji obce, +VDF",
+          "coords": [
+            16.867580555556,
+            48.990677777778
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-5568",
+          "name": "Chvalkovice, Hradisko 518 m, příhradový stožár PČR, +O2",
+          "coords": [
+            17.122758333333,
+            49.201191666667
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5572",
+          "name": "Vyškov, Jana Šoupala 491/1, obchodní dům, +O2",
+          "coords": [
+            16.998472222222,
+            49.277669444444
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5575",
+          "name": "Vyškov - Dědice, Víta Nejedlého 585/39, panelák, +O2, +VDF",
+          "coords": [
+            16.982288888889,
+            49.303608333333
+          ],
+          "cells_without_current_gps": 5
+        },
+        {
+          "id": "TM-GSMWEB-5576",
+          "name": "Slavkov u Brna, Urban 360 m, příhradový stožár, +O2",
+          "coords": [
+            16.883641666667,
+            49.172827777778
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5582",
+          "name": "Ruprechtov, zelený příhradový stožár JV od obce, +O2",
+          "coords": [
+            16.860105555556,
+            49.322288888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5585",
+          "name": "Dražovice, příhradový stožár u vodárny, +O2, +VDF",
+          "coords": [
+            16.954866666667,
+            49.187444444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5586",
+          "name": "Heršpice, příhradový stožár na V okraji obce, +O2",
+          "coords": [
+            16.92315,
+            49.119863888889
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5587",
+          "name": "Hrušky, příhradový stožár JZ od obce u ZD, +O2",
+          "coords": [
+            16.823594444444,
+            49.124211111111
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5588",
+          "name": "Němčany, Vinohrad 336 m, příhradová věž JV od obce, +O2",
+          "coords": [
+            16.932602777778,
+            49.156294444444
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5590",
+          "name": "Kozlany, Jaslůvka 351 m, příhradový stožár nad skládkou, +O2, +VDF",
+          "coords": [
+            17.027997222222,
+            49.198525
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5592",
+          "name": "Krásensko, Kojál 600 m, technická budova TV vysílače, +O2",
+          "coords": [
+            16.816277777778,
+            49.3696
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5597",
+          "name": "Otnice, betonový stožár u ZD Z od obce, +O2",
+          "coords": [
+            16.805863888889,
+            49.085397222222
+          ],
+          "cells_without_current_gps": 1
+        },
+        {
+          "id": "TM-GSMWEB-5602",
+          "name": "Milešovice, příhradový stožár V nad obcí, +O2, +VDF",
+          "coords": [
+            16.862255555556,
+            49.081405555556
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-5642",
+          "name": "Chvalatice, příhradový stožár Z od obce, +O2, +VDF",
+          "coords": [
+            15.739544444444,
+            48.951911111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-5676",
+          "name": "Znojmo, Vídeňská třída, komín nemocnice, +O2",
+          "coords": [
+            16.051488888889,
+            48.851575
+          ],
+          "cells_without_current_gps": 15
+        },
+        {
+          "id": "TM-GSMWEB-5750",
+          "name": "Litovel, Novosady 548/4, panelák, +O2",
+          "coords": [
+            17.078447222222,
+            49.708394444444
+          ],
+          "cells_without_current_gps": 12
+        },
+        {
+          "id": "TM-GSMWEB-5853",
+          "name": "Příkazy 281, mobilní BTS ve dvoře, +O2",
+          "coords": [
+            17.147272222222,
+            49.642
+          ],
+          "cells_without_current_gps": 6
+        },
+        {
+          "id": "TM-GSMWEB-6127",
+          "name": "Ostrožská Nová Ves, Lhotská 920, nákupní středisko, +O2, +VDF",
+          "coords": [
+            17.435238888889,
+            49.004636111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6138",
+          "name": "Uherské Hradiště, Štěpnická 1047, panelák, +O2",
+          "coords": [
+            17.447702777778,
+            49.065536111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6147",
+          "name": "Uherské Hradiště, Velehradská třída 1217, policie, +O2",
+          "coords": [
+            17.465147222222,
+            49.071255555556
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6153",
+          "name": "Kněžpole, tubusový stožár na SZ okraji obce, +O2",
+          "coords": [
+            17.511180555556,
+            49.102366666667
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6165",
+          "name": "Kunovice, vodárna J od města, +O2",
+          "coords": [
+            17.458427777778,
+            49.018672222222
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-6174",
+          "name": "Uherský Ostroh, Školní 400, ZŠ, +O2",
+          "coords": [
+            17.398388888889,
+            48.987111111111
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6189",
+          "name": "Kunovice, budova Z od brány fy LET, +O2",
+          "coords": [
+            17.4334,
+            49.046516666667
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6689",
+          "name": "Mošnov, letiště, budova s kruhovou věží, +O2",
+          "coords": [
+            18.113147222222,
+            49.691188888889
+          ],
+          "cells_without_current_gps": 3
+        },
+        {
+          "id": "TM-GSMWEB-6722",
+          "name": "Fulnek, příhradový stožár, +O2",
+          "coords": [
+            17.900644444444,
+            49.715458333333
+          ],
+          "cells_without_current_gps": 16
+        },
+        {
+          "id": "TM-GSMWEB-6840",
+          "name": "Opava - Komárov, Teva, budova hasičů v areálu, +O2",
+          "coords": [
+            17.967947222222,
+            49.920422222222
+          ],
+          "cells_without_current_gps": 2
+        },
+        {
+          "id": "TM-GSMWEB-7043",
+          "name": "Ostrava - Poruba, 17. listopadu 1790/5, Fakultní nemocnice, budova N, +VDF",
+          "coords": [
+            18.155102777778,
+            49.827275
+          ],
+          "cells_without_current_gps": 4
+        }
+      ],
+      "merged_id_aliases": {},
+      "replaced_old_sites": [],
+      "duplicate_source_rows_removed": 0,
+      "duplicate_output_cells": 0,
+      "inputs": [
+        {
+          "csv_rows": 19095,
+          "gps_rows": 19095,
+          "csv_without_gps": [],
+          "csv_file": "paegas.csv",
+          "gps_file": "t-mobile-all-gps.html",
+          "csv_sha256": "5af87254aeb043028cbd6c69cf20e1e264edd59d931f4e9eb266db9411973365",
+          "gps_sha256": "68efda561eb2d2395525113eb23acc553c20e3d91ed9029c5fe71b77235feb7d"
+        },
+        {
+          "csv_rows": 57916,
+          "gps_rows": 57916,
+          "csv_without_gps": [],
+          "csv_file": "Tlte.csv",
+          "gps_file": "Tlte-all-gps.html",
+          "csv_sha256": "d55d7193437dc87e5139d3b5cfd74c9549d441b41d5b7c7960d83a6368d4b8fc",
+          "gps_sha256": "ffb394b8975500ba1238bc3bb70e6d293eab98b9b412e1516290fef01292427f"
+        }
+      ],
+      "baseline_sha256": "67ae78c525f7fc5208c8ea82989fd0eb9e0eb722b445ad84928e76ab270473d6",
+      "output_sha256": "a69ab5c33022d506989fcd9b5d02259e49ecbee993b021c6480da9a862439347",
+      "idempotent": true
+    }
+  }
+}

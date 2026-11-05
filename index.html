@@ -70,7 +70,7 @@
     </div>
 
     <!-- Tlačítko vizualizace sektorů -->
-    <button id="sector-btn" class="ui-overlay sector-btn" title="Zobrazit sektory BTS">
+    <button id="sector-btn" class="ui-overlay sector-btn" title="Zobrazit schéma sektorů BTS" aria-pressed="false">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="2" fill="currentColor"/>
             <path d="M12 10 L8 3 A10 10 0 0 1 16 3 Z" fill="#ef4444" opacity="0.6"/>
@@ -78,6 +78,9 @@
             <path d="M10.3 13 L4 17 A10 10 0 0 1 4 7 Z" fill="#3b82f6" opacity="0.6"/>
         </svg>
     </button>
+    <p id="sector-note" class="ui-overlay sector-note" role="status" hidden>
+        Schéma sektorů. Skutečný azimut antén a dosah signálu neznáme.
+    </p>
 
     <!-- Tlačítko nejbližších BTS (drž = ukaž) -->
     <button id="nearest-btn" class="ui-overlay nearest-btn" title="Drž pro 3 nejbližší BTS">

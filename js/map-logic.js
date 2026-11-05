@@ -283,7 +283,12 @@ async function loadBtsData(operator) {
         map.setPaintProperty('layer-bts-points', 'circle-color', operator === 'tmobile' ? '#e20074' : '#dc2626');
         map.setPaintProperty('layer-bts-points', 'circle-stroke-color', operator === 'tmobile' ? '#99004d' : '#991b1b');
     } else {
-        map.addSource('bts-points', { type: 'geojson', data: geojsonData, tolerance: 0 });
+        map.addSource('bts-points', {
+            type: 'geojson',
+            data: geojsonData,
+            tolerance: 0,
+            attribution: 'Data BTS: <a href="https://gsmweb.cz/">GSMweb.cz</a>'
+        });
         map.addLayer({
             id: 'layer-bts-points-bg', type: 'circle', source: 'bts-points',
             paint: { 'circle-radius': 7, 'circle-color': '#ffffff', 'circle-opacity': 0.8 }
@@ -805,10 +810,13 @@ function drawSectors(coords, cells) {
 function setupSectors() {
     const btn = document.getElementById('sector-btn');
     if (!btn) return;
+    const note = document.getElementById('sector-note');
 
     btn.addEventListener('click', () => {
         sectorMode = !sectorMode;
         btn.classList.toggle('active', sectorMode);
+        btn.setAttribute('aria-pressed', String(sectorMode));
+        if (note) note.hidden = !sectorMode;
         if (sectorMode) {
             // Spustit GPS lokalizaci jen pokud nemáme manuální souřadnice
             if (!manualCoordinates) {
